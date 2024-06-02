@@ -1,0 +1,14 @@
+@base=http://localhost:8080
+
+###
+POST {{base}}/oracle/var
+Content-Type: application/json
+
+{
+  "assets": [
+    {
+      "ticker": "AAPL",
+      "value": 15000.00
+    }
+  ]
+}
