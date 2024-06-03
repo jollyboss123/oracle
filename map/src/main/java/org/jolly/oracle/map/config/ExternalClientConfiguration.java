@@ -17,11 +17,11 @@ public class ExternalClientConfiguration {
     @Bean("polygonRestClient")
     public RestClient polygonRestClient(RestTemplateBuilder builder, ApplicationProperties props) {
         RestTemplate template = builder
-//                .requestFactory(settings -> new BufferingClientHttpRequestFactory(
-//                        ClientHttpRequestFactories.get(HttpComponentsClientHttpRequestFactory.class, settings)))
                 .setConnectTimeout(Duration.ofMillis(props.getPolygon().getConnectTimeout()))
                 .setReadTimeout(Duration.ofMillis(props.getPolygon().getReadTimeout()))
                 .build();
-        return RestClient.builder(template).build();
+        return RestClient.builder(template)
+                .requestFactory(new BufferingClientHttpRequestFactory(new HttpComponentsClientHttpRequestFactory()))
+                .build();
     }
 }

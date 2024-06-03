@@ -7,6 +7,7 @@ import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
 import org.jolly.oracle.map.service.IQuoteResponse;
 import org.jolly.oracle.map.service.IResult;
+import org.jolly.oracle.map.service.QuotesMessage;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -24,7 +25,7 @@ public class AggregatesResponse implements IQuoteResponse {
 
     @Override
     public List<IResult> getResults() {
-        return new ArrayList<>(results);
+        return new ArrayList<>(this.results);
     }
 
     @Value
@@ -33,5 +34,15 @@ public class AggregatesResponse implements IQuoteResponse {
     public static class Result implements IResult {
         @JsonProperty("c")
         BigDecimal adjustedClose;
+    }
+
+    @Override
+    public List<QuotesMessage.Quote> toQuotes() {
+        return results.stream()
+                .map(result -> QuotesMessage.Quote.builder()
+                        .ticker(this.ticker)
+                        .adjustedClose(result.getAdjustedClose())
+                        .build())
+                .toList();
     }
 }

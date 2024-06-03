@@ -10,5 +10,11 @@ redis-up:
 redis-down:
 	docker compose -f src/main/docker/redis.yml down -v
 
+kafka-up:
+	docker compose -f src/main/docker/kafka.yml up -d
+
+kafka-down:
+	docker compose -f src/main/docker/kafka.yml down -v
+
 services-up:
 	docker compose -f src/main/docker/services.yml up -d

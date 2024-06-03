@@ -24,29 +24,30 @@ public class MapController {
     private final CacheManager cacheManager;
     public static final String PROCESSED_VAR_REQUEST_CACHE = "processedVarRequest";
 
+    //TODO: load test this endpoint
     @PostMapping("/var")
     @ResponseStatus(code = HttpStatus.ACCEPTED)
     ResponseEntity<Void> map(@Valid @RequestBody VarRequest request) {
         // 1. hash the request + timestamp into a job id
-        String h = hash(request);
+        byte[] jobId = hash(request);
         // 2. check if job id exists or processed before
         Cache cache = cacheManager.getCache(PROCESSED_VAR_REQUEST_CACHE);
-        if (cache != null && (cache.get(h) != null)) {
+        if (cache != null && (cache.get(jobId) != null)) {
             log.info("request has been processed before, skipping to reduce step");
             return ResponseEntity.accepted().build();
         }
         // 3. if job id does not exist then launch service
-        mapService.execute(request)
+        mapService.execute(request.withJobId(jobId))
                 .thenRunAsync(() -> {
                     if (cache != null) {
-                        cache.putIfAbsent(h, true);
+                        cache.putIfAbsent(jobId, true);
                     }
                 });
         return ResponseEntity.accepted().build();
     }
 
-    private static String hash(VarRequest request) {
+    private static byte[] hash(VarRequest request) {
         String rawString = request.toString() + LocalDate.now();
-        return DigestUtils.sha256Hex(rawString);
+        return DigestUtils.sha256(rawString);
     }
 }

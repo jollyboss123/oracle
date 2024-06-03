@@ -7,6 +7,7 @@ import org.jolly.oracle.map.service.polygon.PolygonExternalClient;
 import org.jolly.oracle.map.service.yahoofinance.QuotesRequest;
 import org.jolly.oracle.map.service.yahoofinance.YahooFinanceExternalClient;
 import org.jolly.oracle.map.web.rest.VarRequest;
+import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -18,8 +19,11 @@ import java.util.concurrent.CompletableFuture;
 @RequiredArgsConstructor
 @Slf4j
 public class MapService {
+    private static final String PRODUCER_QUOTES_NAME = "quotes-out-0";
+
     private final PolygonExternalClient polygonExternalClient;
     private final YahooFinanceExternalClient yahooFinanceExternalClient;
+    private final StreamBridge streamBridge;
 
     /**
      * Fetches historical data for the provided assets from two different external clients.
@@ -30,9 +34,9 @@ public class MapService {
      */
     @Async("taskExecutor")
     public CompletableFuture<Void> execute(VarRequest request) {
-        // add validation for whether valid stock/crypto before processing
-        // can check db for existing records so don't have to set from 1 year
-        // note polygon can only process 5 request per minute, would require some weightage handling or rate limit
+        //TODO: add validation for whether valid stock/crypto before processing
+        //TODO: can check db for existing records so don't have to set from 1 year
+        //TODO: note polygon can only process 5 request per minute, would require some weightage handling or rate limit
         List<CompletableFuture<IQuoteResponse>> aggregatesFuture = request.getAssets().stream()
                 .map(asset -> CompletableFuture.supplyAsync(() -> {
                     AggregatesRequest req = AggregatesRequest.builder()
@@ -75,10 +79,12 @@ public class MapService {
                 throw new MapServiceException("Fetch historical data error", ex);
             }
 
-            if (result instanceof List<?> list) {
-                if (!list.isEmpty()) {
-                    List<IQuoteResponse> responses = (List<IQuoteResponse>) list;
-                    log.info(responses.toString());
+            if (result instanceof List<?> resultList) {
+                if (!resultList.isEmpty()) {
+                    List<IQuoteResponse> responses = (List<IQuoteResponse>) resultList;
+                    QuotesMessage msg = QuotesMessage.from(responses, request.getJobId());
+                    streamBridge.send(PRODUCER_QUOTES_NAME, msg);
+                    log.info("{} published to kafka topic: {}", msg.getJobId(), PRODUCER_QUOTES_NAME);
                 } else {
                     log.info("no historical data for the given assets");
                 }

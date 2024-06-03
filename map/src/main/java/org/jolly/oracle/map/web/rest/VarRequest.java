@@ -6,17 +6,20 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Singular;
 import lombok.Value;
+import lombok.With;
 import lombok.extern.jackson.Jacksonized;
 
 import java.math.BigDecimal;
 import java.util.List;
 
+@With
 @Value
 @Builder
 @Jacksonized
 public class VarRequest {
     @Singular
     List<Asset> assets;
+    byte[] jobId;
 
     @Value
     @Builder
