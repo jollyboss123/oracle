@@ -25,7 +25,7 @@ public class MapController {
     public static final String PROCESSED_VAR_REQUEST_CACHE = "processedVarRequest";
 
     //TODO: load test this endpoint
-    @PostMapping("/var")
+    @PutMapping("/var")
     @ResponseStatus(code = HttpStatus.ACCEPTED)
     ResponseEntity<Void> map(@Valid @RequestBody VarRequest request) {
         // 1. hash the request + timestamp into a job id
