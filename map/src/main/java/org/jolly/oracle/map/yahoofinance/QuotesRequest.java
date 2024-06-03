@@ -14,7 +14,7 @@ import java.time.ZoneOffset;
 
 @Value
 @Builder
-public class HistoryQuotesRequest {
+public class QuotesRequest {
     String ticker;
     @DateTimeFormat(pattern = "YYYY-MM-DD", fallbackPatterns = "yyyy-MM-dd'T'HH:mm:ss.SSS")
     LocalDate from;
@@ -33,13 +33,13 @@ public class HistoryQuotesRequest {
         private final String value;
     }
 
-    public static HistoryQuotesRequestBuilder builder() {
+    public static QuotesRequestBuilder builder() {
         return new CustomHistoryQuotesRequestBuilder();
     }
 
-    private static class CustomHistoryQuotesRequestBuilder extends HistoryQuotesRequestBuilder {
+    private static class CustomHistoryQuotesRequestBuilder extends QuotesRequestBuilder {
         @Override
-        public HistoryQuotesRequest build() {
+        public QuotesRequest build() {
             Validate.notBlank(super.ticker, "Missing ticker");
             Validate.notNull(super.interval, "Missing interval");
             Validate.notNull(super.to, "Missing to");
