@@ -1,8 +1,8 @@
-package org.jolly.oracle.map.polygon;
+package org.jolly.oracle.map.service.polygon;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jolly.oracle.map.config.ApplicationProperties;
+import org.jolly.oracle.map.service.IQuoteResponse;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -32,7 +32,7 @@ public class PolygonExternalClient {
      * @param aggregatesRequest the request parameters for fetching aggregate data
      * @return the response containing aggregate data
      */
-    public AggregatesResponse fetchAggregates(AggregatesRequest aggregatesRequest) {
+    public IQuoteResponse fetchAggregates(AggregatesRequest aggregatesRequest) {
         URI uri = UriComponentsBuilder.newInstance()
                 .scheme("https")
                 .host("api.polygon.io")
@@ -50,11 +50,11 @@ public class PolygonExternalClient {
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError, (request, response) -> {
                     log.error("client error code: {}, description: {}", response.getStatusCode(), response.getStatusText());
-                    //TODO: throw custom exception
+                    throw new PolygonClientException("Polygon client error code: " + response.getStatusCode() + " description: " + response.getStatusText());
                 })
                 .onStatus(HttpStatusCode::is5xxServerError, ((request, response) -> {
                     log.error("server error code: {}, description: {}", response.getStatusCode(), response.getStatusText());
-                    //TODO: throw custom exception
+                    throw new PolygonClientException("Polygon server error code: " + response.getStatusCode() + " description: " + response.getStatusText());
                 }))
                 .body(AggregatesResponse.class);
     }

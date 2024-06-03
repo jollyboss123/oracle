@@ -1,4 +1,4 @@
-package org.jolly.oracle.map.yahoofinance;
+package org.jolly.oracle.map.service.yahoofinance;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

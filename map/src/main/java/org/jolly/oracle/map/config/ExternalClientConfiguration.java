@@ -15,12 +15,12 @@ import java.time.Duration;
 public class ExternalClientConfiguration {
 
     @Bean("polygonRestClient")
-    public RestClient polygonRestClient(RestTemplateBuilder builder) {
+    public RestClient polygonRestClient(RestTemplateBuilder builder, ApplicationProperties props) {
         RestTemplate template = builder
 //                .requestFactory(settings -> new BufferingClientHttpRequestFactory(
 //                        ClientHttpRequestFactories.get(HttpComponentsClientHttpRequestFactory.class, settings)))
-                .setConnectTimeout(Duration.ofSeconds(60))
-                .setReadTimeout(Duration.ofSeconds(60))
+                .setConnectTimeout(Duration.ofMillis(props.getPolygon().getConnectTimeout()))
+                .setReadTimeout(Duration.ofMillis(props.getPolygon().getReadTimeout()))
                 .build();
         return RestClient.builder(template).build();
     }

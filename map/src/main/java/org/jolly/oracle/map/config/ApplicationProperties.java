@@ -16,6 +16,7 @@ public class ApplicationProperties {
     private final Logging logging = new Logging();
     private final Polygon polygon = new Polygon();
     private final Redis redis = new Redis();
+    private final YahooFinance yahooFinance = new YahooFinance();
 
     @NoArgsConstructor
     @Getter
@@ -40,6 +41,16 @@ public class ApplicationProperties {
     @Getter
     public static class Polygon {
         private String apiKey;
+        private int connectTimeout = 10_000;
+        private int readTimeout = 10_000;
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class YahooFinance {
+        private int connectTimeout = 10_000;
+        private int readTimeout = 10_000;
     }
 
     @Getter

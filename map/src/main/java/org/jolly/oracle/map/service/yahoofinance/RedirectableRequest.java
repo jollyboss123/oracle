@@ -1,4 +1,4 @@
-package org.jolly.oracle.map.yahoofinance;
+package org.jolly.oracle.map.service.yahoofinance;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -27,11 +27,11 @@ public class RedirectableRequest {
         return new RedirectableRequest(request, protocolRedirectLimit);
     }
 
-    public URLConnection openConnection() throws IOException {
+    public URLConnection openConnection() throws IOException, URISyntaxException {
         return openConnection(Collections.emptyMap());
     }
 
-    public URLConnection openConnection(Map<String, String> requestProperties) throws IOException {
+    public URLConnection openConnection(Map<String, String> requestProperties) throws IOException, URISyntaxException {
         int redirectCount = 0;
         boolean hasResponse = false;
         HttpURLConnection connection = null;
@@ -53,13 +53,7 @@ public class RedirectableRequest {
             if (responseCode == HttpURLConnection.HTTP_MOVED_PERM || responseCode == HttpURLConnection.HTTP_MOVED_TEMP) {
                 redirectCount++;
                 String location = connection.getHeaderField("Location");
-                URI baseUri;
-                try {
-                    baseUri = currentRequest.toURI();
-                } catch (URISyntaxException e) {
-                    //TODO: throw specific exception
-                    throw new RuntimeException(e);
-                }
+                URI baseUri = currentRequest.toURI();
                 URI resolvedUri = baseUri.resolve(location);
                 currentRequest = resolvedUri.toURL();
             } else {

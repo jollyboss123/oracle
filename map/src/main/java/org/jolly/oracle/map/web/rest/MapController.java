@@ -32,7 +32,7 @@ public class MapController {
         // 2. check if job id exists or processed before
         Cache cache = cacheManager.getCache(PROCESSED_VAR_REQUEST_CACHE);
         if (cache != null && (cache.get(h) != null)) {
-            log.info("request has been processed before");
+            log.info("request has been processed before, skipping to reduce step");
             return ResponseEntity.accepted().build();
         }
         // 3. if job id does not exist then launch service
