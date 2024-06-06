@@ -1,8 +1,6 @@
 package org.jolly.oracle.map.web.rest;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.*;
 import lombok.Builder;
 import lombok.Singular;
 import lombok.Value;
@@ -16,10 +14,13 @@ import java.util.List;
 @Value
 @Builder
 @Jacksonized
+@ValidPortfolioValue
 public class VarRequest {
     @Singular
     List<Asset> assets;
     byte[] jobId;
+    @Positive
+    BigDecimal portfolioValue;
 
     @Value
     @Builder
@@ -36,6 +37,7 @@ public class VarRequest {
          * value is the cash value held for this asset
          */
         @NotNull
+        @Positive
         BigDecimal value;
     }
 }

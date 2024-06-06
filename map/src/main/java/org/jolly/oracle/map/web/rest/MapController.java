@@ -13,6 +13,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/oracle")
@@ -27,7 +29,7 @@ public class MapController {
     //TODO: load test this endpoint
     @PutMapping("/var")
     @ResponseStatus(code = HttpStatus.ACCEPTED)
-    ResponseEntity<Void> map(@Valid @RequestBody VarRequest request) {
+    ResponseEntity<String> map(@Valid @RequestBody VarRequest request) {
         // 1. hash the request + timestamp into a job id
         byte[] jobId = hash(request);
         // 2. check if job id exists or processed before
@@ -43,7 +45,7 @@ public class MapController {
                         cache.putIfAbsent(jobId, true);
                     }
                 });
-        return ResponseEntity.accepted().build();
+        return ResponseEntity.accepted().body(Arrays.toString(jobId));
     }
 
     private static byte[] hash(VarRequest request) {

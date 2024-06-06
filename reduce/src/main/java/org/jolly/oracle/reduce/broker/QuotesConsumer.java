@@ -5,6 +5,7 @@ import org.jolly.oracle.reduce.service.QuotesMessage;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.Arrays;
 import java.util.function.Consumer;
 
 @Configuration
@@ -13,6 +14,6 @@ public class QuotesConsumer {
 
     @Bean
     public Consumer<QuotesMessage> quotes() {
-        return quotes -> log.info("received");
+        return quotes -> log.info("received: {}", Arrays.toString(quotes.getJobId()));
     }
 }

@@ -21,6 +21,7 @@ public class QuotesMessage {
     byte[] jobId;
     @Singular("quoteByTicker")
     Map<String, List<Quote>> quotesByTicker;
+    //TODO: add weightage for each ticker and total portfolio value
 
     @Value
     @Builder

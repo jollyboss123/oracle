@@ -5,6 +5,7 @@ PUT {{base}}/oracle/var
 Content-Type: application/json
 
 {
+  "portfolioValue": 15000.00,
   "assets": [
     {
       "ticker": "AAPL",
