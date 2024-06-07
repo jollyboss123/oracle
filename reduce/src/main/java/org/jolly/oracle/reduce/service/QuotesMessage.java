@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Value
@@ -17,14 +18,18 @@ import java.util.stream.Collectors;
 @Slf4j
 public class QuotesMessage {
     byte[] jobId;
-    @Singular("quoteByTicker")
-    Map<String, List<Quote>> quotesByTicker;
+    BigDecimal portfolioValue;
+    //TODO: add weightage for each ticker
+    @Singular
+    Set<Asset> assets;
 
     @Value
     @Builder
     @Jacksonized
-    public static class Quote {
+    public static class Asset {
+        BigDecimal value;
         String ticker;
-        BigDecimal adjustedClose;
+        @Singular
+        List<BigDecimal> returns;
     }
 }

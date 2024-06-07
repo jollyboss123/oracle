@@ -82,7 +82,7 @@ public class MapService {
             if (result instanceof List<?> resultList) {
                 if (!resultList.isEmpty()) {
                     List<IQuoteResponse> responses = (List<IQuoteResponse>) resultList;
-                    QuotesMessage msg = QuotesMessage.from(responses, request.getJobId());
+                    QuotesMessage msg = QuotesMessage.from(responses, request);
                     streamBridge.send(PRODUCER_QUOTES_NAME, msg);
                     log.info("{} published to kafka topic: {}", msg.getJobId(), PRODUCER_QUOTES_NAME);
                 } else {

@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Singular;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
+import org.jetbrains.annotations.NotNull;
 import org.jolly.oracle.map.service.IQuoteResponse;
 import org.jolly.oracle.map.service.IResult;
 import org.jolly.oracle.map.service.QuotesMessage;
@@ -36,13 +37,13 @@ public class AggregatesResponse implements IQuoteResponse {
         BigDecimal adjustedClose;
     }
 
+    @NotNull
     @Override
-    public List<QuotesMessage.Quote> toQuotes() {
-        return results.stream()
-                .map(result -> QuotesMessage.Quote.builder()
-                        .ticker(this.ticker)
-                        .adjustedClose(result.getAdjustedClose())
-                        .build())
-                .toList();
+    public QuotesMessage.Asset toAsset(BigDecimal value) {
+        return QuotesMessage.Asset.builder()
+                .ticker(ticker)
+                .value(value)
+                .returns(toPctChanges())
+                .build();
     }
 }

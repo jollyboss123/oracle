@@ -6,11 +6,14 @@ import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
+import org.jolly.oracle.map.web.rest.VarRequest;
 import org.springframework.lang.NonNull;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Value
@@ -19,30 +22,50 @@ import java.util.stream.Collectors;
 @Slf4j
 public class QuotesMessage {
     byte[] jobId;
-    @Singular("quoteByTicker")
-    Map<String, List<Quote>> quotesByTicker;
-    //TODO: add weightage for each ticker and total portfolio value
+    BigDecimal portfolioValue;
+    //TODO: add weightage for each ticker
+    @Singular
+    Set<Asset> assets;
 
     @Value
     @Builder
     @Jacksonized
-    public static class Quote {
+    public static class Asset {
+        BigDecimal value;
         String ticker;
-        BigDecimal adjustedClose;
+        @Singular
+        List<BigDecimal> returns;
     }
 
-    public static QuotesMessage from(List<IQuoteResponse> quoteResponses, @NonNull byte[] jobId) {
-        if (ArrayUtils.isEmpty(jobId)) {
+    public static QuotesMessage from(List<IQuoteResponse> quoteResponses, @NonNull VarRequest varRequest) {
+        if (ArrayUtils.isEmpty(varRequest.getJobId())) {
             throw new NullPointerException("jobId");
         }
 
-        Map<String, List<Quote>> quotesByTicker = quoteResponses.stream()
-                .flatMap(response -> response.toQuotes().stream())
-                .collect(Collectors.groupingBy(Quote::getTicker));
+        Map<String, BigDecimal> tickerValueMap = varRequest.getAssets().stream()
+                        .collect(
+                                Collectors.toMap(
+                                    VarRequest.Asset::getTicker,
+                                    VarRequest.Asset::getValue,
+                                    (o, n) -> o,
+                                    HashMap::new
+                        ));
+
+        Set<Asset> assets = quoteResponses.stream()
+                .map(response -> {
+                    if (!tickerValueMap.containsKey(response.getTicker())) {
+                        log.error("{} does not exist in var request", response.getTicker());
+                        throw new IllegalStateException("Ticker does not exist in request");
+                    }
+
+                    return response.toAsset(tickerValueMap.get(response.getTicker()));
+                })
+                .collect(Collectors.toSet());
 
         return QuotesMessage.builder()
-                .jobId(jobId.clone())
-                .quotesByTicker(quotesByTicker)
+                .jobId(varRequest.getJobId().clone())
+                .portfolioValue(varRequest.getPortfolioValue())
+                .assets(assets)
                 .build();
     }
 }

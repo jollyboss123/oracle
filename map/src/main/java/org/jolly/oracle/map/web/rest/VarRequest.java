@@ -9,6 +9,7 @@ import lombok.extern.jackson.Jacksonized;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Set;
 
 @With
 @Value
@@ -17,7 +18,7 @@ import java.util.List;
 @ValidPortfolioValue
 public class VarRequest {
     @Singular
-    List<Asset> assets;
+    Set<Asset> assets;
     byte[] jobId;
     @Positive
     BigDecimal portfolioValue;

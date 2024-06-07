@@ -6,6 +6,7 @@ import lombok.Value;
 import org.jolly.oracle.map.service.IQuoteResponse;
 import org.jolly.oracle.map.service.IResult;
 import org.jolly.oracle.map.service.QuotesMessage;
+import org.springframework.lang.NonNull;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -29,13 +30,13 @@ public class QuotesResponse implements IQuoteResponse {
         BigDecimal adjustedClose;
     }
 
+    @NonNull
     @Override
-    public List<QuotesMessage.Quote> toQuotes() {
-        return results.stream()
-                .map(result -> QuotesMessage.Quote.builder()
-                        .ticker(this.ticker)
-                        .adjustedClose(result.getAdjustedClose())
-                        .build())
-                .toList();
+    public QuotesMessage.Asset toAsset(BigDecimal value) {
+        return QuotesMessage.Asset.builder()
+                .ticker(ticker)
+                .value(value)
+                .returns(toPctChanges())
+                .build();
     }
 }
