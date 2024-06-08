@@ -9,7 +9,6 @@ import org.jolly.oracle.map.service.QuotesMessage;
 import org.springframework.lang.NonNull;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 
 @Value
@@ -21,7 +20,7 @@ public class QuotesResponse implements IQuoteResponse {
 
     @Override
     public List<IResult> getResults() {
-        return new ArrayList<>(results);
+        return List.copyOf(results);
     }
 
     @Value

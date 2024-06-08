@@ -1,6 +1,28 @@
 @base=http://localhost:8080
 
-###
+### multi-asset value at risk for an equally weighted portfolio
+PUT {{base}}/oracle/var
+Content-Type: application/json
+
+{
+  "portfolioValue": 15000.00,
+  "assets": [
+    {
+      "ticker": "AAPL",
+      "value": 5000.00
+    },
+    {
+      "ticker": "MSFT",
+      "value": 5000.00
+    },
+    {
+      "ticker": "TSLA",
+      "value": 5000.00
+    }
+  ]
+}
+
+### one-asset value at risk
 PUT {{base}}/oracle/var
 Content-Type: application/json
 
@@ -10,6 +32,46 @@ Content-Type: application/json
     {
       "ticker": "AAPL",
       "value": 15000.00
+    }
+  ]
+}
+
+### two-asset value at risk
+PUT {{base}}/oracle/var
+Content-Type: application/json
+
+{
+  "portfolioValue": 15000.00,
+  "assets": [
+    {
+      "ticker": "AAPL",
+      "value": 9000.00
+    },
+    {
+      "ticker": "TSLA",
+      "value": 6000.00
+    }
+  ]
+}
+
+### multi-asset value at risk for non-equally weighted portfolio
+PUT {{base}}/oracle/var
+Content-Type: application/json
+
+{
+  "portfolioValue": 15000.00,
+  "assets": [
+    {
+      "ticker": "AAPL",
+      "value": 6000.00
+    },
+    {
+      "ticker": "MSFT",
+      "value": 2000.00
+    },
+    {
+      "ticker": "TSLA",
+      "value": 7000.00
     }
   ]
 }

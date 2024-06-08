@@ -11,7 +11,6 @@ import org.jolly.oracle.map.service.IResult;
 import org.jolly.oracle.map.service.QuotesMessage;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 
 @Value
@@ -26,7 +25,7 @@ public class AggregatesResponse implements IQuoteResponse {
 
     @Override
     public List<IResult> getResults() {
-        return new ArrayList<>(this.results);
+        return List.copyOf(this.results);
     }
 
     @Value
