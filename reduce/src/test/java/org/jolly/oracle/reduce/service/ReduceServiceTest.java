@@ -15,10 +15,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ReduceServiceTest {
 
-    @ParameterizedTest
-    @ValueSource(booleans = {true, false})
-    void expectedReturns(boolean withPortfolioValue) {
-        QuotesMessage input = setupMockQuotesMessage(withPortfolioValue);
+    @Test
+    void expectedReturns() {
+        QuotesMessage input = setupMockQuotesMessage();
         BigDecimal expected = ReduceService.expectedReturns(
                 ReduceService.weights(input.getPortfolioValue(), List.copyOf(input.getAssets())),
                 ReduceService.returns(List.copyOf(input.getAssets()))
@@ -163,10 +162,10 @@ class ReduceServiceTest {
         assertEquals(expected, actual, () -> "expected: %s, gotten: %s".formatted(expected, actual));
     }
 
-    private static QuotesMessage setupMockQuotesMessage(boolean withPortfolioValue) {
+    private static QuotesMessage setupMockQuotesMessage() {
         return QuotesMessage.builder()
                 .jobId(new byte[]{1, 2, 3})
-                .portfolioValue(withPortfolioValue ? new BigDecimal("1000") : null)
+                .portfolioValue(new BigDecimal("1000"))
                 .asset(QuotesMessage.Asset.builder()
                         .value(new BigDecimal("500"))
                         .ticker("AAPL")

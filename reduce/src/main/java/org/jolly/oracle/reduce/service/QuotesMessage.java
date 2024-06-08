@@ -19,7 +19,6 @@ import java.util.stream.Collectors;
 public class QuotesMessage {
     byte[] jobId;
     BigDecimal portfolioValue;
-    //TODO: add weightage for each ticker
     @Singular
     Set<Asset> assets;
 
