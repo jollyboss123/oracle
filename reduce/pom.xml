@@ -18,6 +18,9 @@
         <spring-cloud.version>2023.0.1</spring-cloud.version>
         <logstash-logback-encoder.version>7.4</logstash-logback-encoder.version>
         <commons-lang3.version>3.14.0</commons-lang3.version>
+        <opentelemetry-logback-appender.version>2.4.0-alpha</opentelemetry-logback-appender.version>
+        <opentelemetry-instrumentation-api-semconv.version>1.33.3-alpha</opentelemetry-instrumentation-api-semconv.version>
+        <pyroscope-agent.version>0.14.0</pyroscope-agent.version>
     </properties>
 
     <dependencyManagement>
@@ -135,7 +138,7 @@
         <dependency>
             <groupId>io.opentelemetry.instrumentation</groupId>
             <artifactId>opentelemetry-logback-appender-1.0</artifactId>
-            <version>2.4.0-alpha</version>
+            <version>${opentelemetry-logback-appender.version}</version>
         </dependency>
         <dependency>
             <groupId>io.opentelemetry</groupId>
@@ -144,12 +147,18 @@
         <dependency>
             <groupId>io.opentelemetry.instrumentation</groupId>
             <artifactId>opentelemetry-instrumentation-api-semconv</artifactId>
-            <version>1.33.3-alpha</version>
+            <version>${opentelemetry-instrumentation-api-semconv.version}</version>
         </dependency>
         <dependency>
             <groupId>io.opentelemetry</groupId>
             <artifactId>opentelemetry-exporter-otlp-common</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.pyroscope</groupId>
+            <artifactId>agent</artifactId>
+            <version>${pyroscope-agent.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>

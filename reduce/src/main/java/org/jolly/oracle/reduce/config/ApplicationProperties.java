@@ -14,6 +14,7 @@ import java.util.List;
 )
 public class ApplicationProperties {
     private final Logging logging = new Logging();
+    private final Pyroscope pyroscope = new Pyroscope();
 
     @NoArgsConstructor
     @Getter
@@ -31,5 +32,13 @@ public class ApplicationProperties {
             private int port = 5000;
             private int ringBufferSize = 512;
         }
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class Pyroscope {
+        private boolean enabled = false;
+        private String server;
     }
 }

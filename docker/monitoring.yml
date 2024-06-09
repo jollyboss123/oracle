@@ -40,6 +40,16 @@ services:
       - '-config.file=/etc/loki/local-config.yaml'
     ports:
       - 127.0.0.1:3100:3100
+  pyroscope:
+    image: grafana/pyroscope:1.6.0
+    ports:
+      - 127.0.0.1:4040:4040
+    command:
+      - "server"
+    volumes:
+      - ./pyroscope/:/etc/pyroscope/
+    networks:
+      - pyroscope
   grafana:
     image: grafana/grafana:11.0.0
     volumes:
@@ -52,3 +62,10 @@ services:
     # remove the "127.0.0.1:" prefix
     ports:
       - 127.0.0.1:3000:3000
+    networks:
+      - pyroscope
+
+networks:
+  pyroscope:
+    name: pyroscope
+    driver: bridge

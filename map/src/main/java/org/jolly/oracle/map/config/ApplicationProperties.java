@@ -17,6 +17,7 @@ public class ApplicationProperties {
     private final Polygon polygon = new Polygon();
     private final Redis redis = new Redis();
     private final YahooFinance yahooFinance = new YahooFinance();
+    private final Pyroscope pyroscope = new Pyroscope();
 
     @NoArgsConstructor
     @Getter
@@ -64,5 +65,13 @@ public class ApplicationProperties {
         private int connectionMinimumIdleSize = 24;
         private int subscriptionConnectionPoolSize = 50;
         private int subscriptionConnectionMinimumIdleSize = 1;
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class Pyroscope {
+        private boolean enabled = false;
+        private String server;
     }
 }
