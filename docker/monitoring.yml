@@ -1,0 +1,47 @@
+# This configuration is intended for development purpose, have to harden it for production
+name: oracle
+services:
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.102.0
+    command:
+      - '--config=/etc/otelcol-cont/otel-collector.yml'
+    volumes:
+      - ./collector/:/etc/otelcol-cont/
+    ports:
+      - "1888:1888" # pprof extension
+      - "8888:8888" # Prometheus metrics exposed by the collector
+      - "8889:8889" # Prometheus exporter metrics
+      - "13133:13133" # health_check extension
+      - "4317:4317" # OTLP gRPC receiver
+      - "4318:4318" # OTLP http receiver
+      - "55679:55679" # zpages extension
+  prometheus:
+    image: prom/prometheus:v2.52.0
+    volumes:
+      - ./prometheus/:/etc/prometheus/
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    # If you want to expose these ports outside your dev PC,
+    # remove the "127.0.0.1:" prefix
+    ports:
+      - 127.0.0.1:9090:9090
+  tempo:
+    image: grafana/tempo:2.5.0
+    command:
+      - '-config.file=/etc/tempo.yml'
+    volumes:
+      - ./tempo/tempo.yml:/etc/tempo.yml
+    ports:
+      - 127.0.0.1:3200:3200   # tempo
+      - "4317"  # otlp grpc
+#      - "4318"
+  grafana:
+    image: grafana/grafana:11.0.0
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_INSTALL_PLUGINS=grafana-piechart-panel
+    # If you want to expose these ports outside your dev PC,
+    # remove the "127.0.0.1:" prefix
+    ports:
+      - 127.0.0.1:3000:3000
