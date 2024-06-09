@@ -48,8 +48,6 @@ services:
       - "server"
     volumes:
       - ./pyroscope/:/etc/pyroscope/
-    networks:
-      - pyroscope
   grafana:
     image: grafana/grafana:11.0.0
     volumes:
@@ -62,10 +60,3 @@ services:
     # remove the "127.0.0.1:" prefix
     ports:
       - 127.0.0.1:3000:3000
-    networks:
-      - pyroscope
-
-networks:
-  pyroscope:
-    name: pyroscope
-    driver: bridge
