@@ -34,7 +34,12 @@ services:
     ports:
       - 127.0.0.1:3200:3200   # tempo
       - "4317"  # otlp grpc
-#      - "4318"
+  loki:
+    image: grafana/loki:3.0.0
+    command:
+      - '-config.file=/etc/loki/local-config.yaml'
+    ports:
+      - 127.0.0.1:3100:3100
   grafana:
     image: grafana/grafana:11.0.0
     environment:

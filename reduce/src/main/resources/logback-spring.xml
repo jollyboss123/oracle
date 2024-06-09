@@ -13,6 +13,12 @@
     <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
     <include resource="org/springframework/boot/logging/logback/console-appender.xml" />
 
+    <appender name="OPEN_TELEMETRY"
+              class="io.opentelemetry.instrumentation.logback.appender.v1_0.OpenTelemetryAppender">
+        <captureExperimentalAttributes>true</captureExperimentalAttributes>
+        <captureKeyValuePairAttributes>true</captureKeyValuePairAttributes>
+    </appender>
+
     <!-- The FILE and ASYNC appenders are here as examples for a production configuration -->
     <!--
     <include resource="org/springframework/boot/logging/logback/file-appender.xml" />
@@ -70,6 +76,7 @@
     <springProperty name="log.level" source="logging.level.root" defaultValue="INFO" />
     <root level="${log.level}">
         <appender-ref ref="CONSOLE" />
+        <appender-ref ref="OPEN_TELEMETRY" />
     </root>
 
     <contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator">
