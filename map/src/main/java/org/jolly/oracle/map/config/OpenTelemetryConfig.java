@@ -16,11 +16,13 @@ import io.opentelemetry.semconv.ResourceAttributes;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @RequiredArgsConstructor
+@ConditionalOnProperty(prefix = "app", name = "open-telemetry.enabled", havingValue = "true")
 public class OpenTelemetryConfig {
     @Value("${spring.application.name}")
     private final String applicatioName;
@@ -49,10 +51,10 @@ public class OpenTelemetryConfig {
     }
 
     @Bean
-    LogRecordProcessor otelLogRecordProcessor() {
+    LogRecordProcessor otelLogRecordProcessor(@Value("${app.open-telemetry.server}") String otelServer) {
         return BatchLogRecordProcessor.builder(
                 OtlpGrpcLogRecordExporter.builder()
-                        .setEndpoint("http://localhost:4317") //TODO: set in properties
+                        .setEndpoint(otelServer)
                         .build()
         ).build();
     }

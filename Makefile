@@ -24,3 +24,6 @@ monitoring-down:
 
 services-up:
 	docker compose -f docker/services.yml up -d
+
+services-down:
+	docker compose -f docker/services.yml down -v
