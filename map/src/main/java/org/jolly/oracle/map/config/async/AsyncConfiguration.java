@@ -1,6 +1,7 @@
 package org.jolly.oracle.map.config.async;
 
 import lombok.RequiredArgsConstructor;
+import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.aop.interceptor.SimpleAsyncUncaughtExceptionHandler;
@@ -37,5 +38,16 @@ public class AsyncConfiguration implements AsyncConfigurer {
     @Override
     public AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() {
         return new SimpleAsyncUncaughtExceptionHandler();
+    }
+
+    @Bean(name = "historicalDataTaskExecutor")
+    public Executor historicalDataTaskExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(20);
+        executor.setMaxPoolSize(600);
+        executor.setQueueCapacity(800);
+        executor.setThreadNamePrefix("Oracle-HistoricalDataAsync-");
+        executor.initialize();
+        return executor;
     }
 }

@@ -49,6 +49,7 @@ public class RedirectableRequest {
             // only handle protocol redirects manually
             connection.setInstanceFollowRedirects(true);
 
+            //TODO: handle FileNotFoundException i.e. ticker does not exist
             int responseCode = connection.getResponseCode();
             if (responseCode == HttpURLConnection.HTTP_MOVED_PERM || responseCode == HttpURLConnection.HTTP_MOVED_TEMP) {
                 redirectCount++;

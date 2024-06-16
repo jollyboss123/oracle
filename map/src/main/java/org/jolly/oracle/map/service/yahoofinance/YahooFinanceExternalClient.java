@@ -78,6 +78,7 @@ public class YahooFinanceExternalClient {
             throw new YahooFinanceClientException("Request not formatted correctly", e);
         }
 
+        //TODO: handle FileNotFoundException i.e. ticker does not exist
         return connection.getInputStream();
     }
 
