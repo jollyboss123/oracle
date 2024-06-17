@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collection;
 import java.util.Optional;
 
 public interface StockRepository extends JpaRepository<Stock, Long> {
@@ -29,4 +30,12 @@ public interface StockRepository extends JpaRepository<Stock, Long> {
         where s.ticker = :ticker
         """)
     Optional<Stock> findByTicker(@Param("ticker") String ticker);
+
+    @Transactional(readOnly = true)
+    @Query("""
+        select s
+        from Stock s
+        where s.ticker in (:tickers)
+        """)
+    Collection<Stock> findByTickersIn(@Param("tickers") Collection<String> tickers);
 }

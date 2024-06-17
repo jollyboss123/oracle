@@ -15,8 +15,12 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @Service
 @Slf4j
@@ -25,11 +29,11 @@ import java.util.Set;
 public class AssetTickerService {
     private final StockRepository stockRepository;
 
+    record StockView(String ticker, String name) {}
+
     // should be a daily cron job
     @Transactional
     public void fetchStocks() throws IOException {
-        // 1. check from db if updated today
-
         // 2. check if there is ongoing task of updating in db today
 
         // 3. if false, pull from /datasrv
@@ -47,8 +51,6 @@ public class AssetTickerService {
         }
 
         // 4. parse
-//        Set<Stock> stocks = new HashSet<>();
-
         try (InputStreamReader is = new InputStreamReader(url.openStream());
              BufferedReader br = new BufferedReader(is)) {
             Iterable<CSVRecord> records;
@@ -61,25 +63,32 @@ public class AssetTickerService {
                 log.error("parse csv error", e);
                 throw new IOException("Parse csv error", e);
             }
-            log.info("Updating");
-            for (CSVRecord r : records) {
-                String ticker = r.get(0);
-                String name = r.get(1);
-//                stocks.add(new Stock()
-//                        .setTicker(ticker)
-//                        .setName(name));
-                stockRepository.findByTicker(ticker)
-                                .map(s -> s.setName(name))
-                                .orElseGet(() -> stockRepository.save(new Stock()
-                                        .setTicker(ticker)
-                                        .setName(name)));
-//                stockRepository.save(new Stock()
-//                        .setTicker(ticker)
-//                        .setName(name));
-            }
-        }
 
-        // 5. save to db by batches
-//        stocks.forEach(s -> stockRepository.upsert(s.getTicker(), s.getName()));
+            List<StockView> stocks = StreamSupport.stream(records.spliterator(), true)
+                    .map(rec -> new StockView(rec.get(0), rec.get(1)))
+                    .toList();
+
+            Map<String, Stock> existing;
+            if (stocks.isEmpty()) {
+                existing = Collections.emptyMap();
+            } else {
+                existing = stockRepository.findByTickersIn(stocks.stream().map(StockView::ticker).toList()).stream()
+                        .collect(Collectors.toMap(Stock::getTicker, Function.identity()));
+            }
+
+            List<Stock> update = stocks.parallelStream()
+                    .map(rec -> {
+                        String ticker = rec.ticker;
+                        String name = rec.name;
+
+                        Stock stock = existing.getOrDefault(ticker, new Stock().setTicker(ticker));
+                        stock.setName(name);
+                        return stock;
+                    })
+                    .toList();
+
+            // 5. save to db by batches
+            stockRepository.saveAll(update);
+        }
     }
 }
