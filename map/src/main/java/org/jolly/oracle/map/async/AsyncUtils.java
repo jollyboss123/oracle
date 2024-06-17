@@ -1,8 +1,9 @@
-package org.jolly.oracle.map.service;
+package org.jolly.oracle.map.async;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -58,5 +59,18 @@ public class AsyncUtils {
         return source.stream()
                 .map(i -> CompletableFuture.supplyAsync(() -> mapper.apply(i), executor))
                 .collect(Collectors.collectingAndThen(Collectors.toList(), AsyncUtils::allOfOrException));
+    }
+
+    public static <T, R> CompletableFuture<List<R>> inParallelBatching(List<T> source, Function<T, R> mapper, Executor executor, int batches) {
+        return BatchingSpliterator.partitioned(source, batches)
+                .map(batch -> CompletableFuture.supplyAsync(() -> BatchingSpliterator.batching(mapper).apply(batch), executor))
+                .collect(Collectors.collectingAndThen(Collectors.toList(), AsyncUtils::allOfOrException))
+                .thenApply(list -> {
+                    List<R> result = new ArrayList<>(source.size());
+                    for (List<R> rs : list) {
+                        result.addAll(rs);
+                    }
+                    return result;
+                });
     }
 }

@@ -42,7 +42,7 @@ public class AssetTickerService {
             url = UriComponentsBuilder.newInstance()
                     .scheme("http")
                     .host("datasrv.ddfplus.com")
-                    .path("/names/funds.txt")
+                    .path("/names/nasd.txt")
                     .build()
                     .toUri().toURL();
         } catch (MalformedURLException e) {
@@ -67,6 +67,7 @@ public class AssetTickerService {
             List<StockView> stocks = StreamSupport.stream(records.spliterator(), true)
                     .map(rec -> new StockView(rec.get(0), rec.get(1)))
                     .toList();
+            log.debug("stocks size: {}", stocks.size());
 
             Map<String, Stock> existing;
             if (stocks.isEmpty()) {
@@ -75,6 +76,7 @@ public class AssetTickerService {
                 existing = stockRepository.findByTickersIn(stocks.stream().map(StockView::ticker).toList()).stream()
                         .collect(Collectors.toMap(Stock::getTicker, Function.identity()));
             }
+            log.debug("existing size: {}", existing.size());
 
             List<Stock> update = stocks.parallelStream()
                     .map(rec -> {
@@ -88,7 +90,8 @@ public class AssetTickerService {
                     .toList();
 
             // 5. save to db by batches
-            stockRepository.saveAll(update);
+            List<Stock> updated = stockRepository.saveAll(update);
+            log.info("saved/updated {} records", updated.size());
         }
     }
 }

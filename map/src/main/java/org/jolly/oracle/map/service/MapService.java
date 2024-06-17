@@ -2,6 +2,7 @@ package org.jolly.oracle.map.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jolly.oracle.map.async.AsyncUtils;
 import org.jolly.oracle.map.service.polygon.AggregatesRequest;
 import org.jolly.oracle.map.service.polygon.PolygonExternalClient;
 import org.jolly.oracle.map.service.yahoofinance.QuotesRequest;
@@ -9,13 +10,13 @@ import org.jolly.oracle.map.service.yahoofinance.YahooFinanceExternalClient;
 import org.jolly.oracle.map.web.rest.VarRequest;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cloud.stream.function.StreamBridge;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -70,6 +71,7 @@ public class MapService {
         );
 
         AsyncUtils.anyOf(polygonResponsesFuture, yfResponsesFuture)
+                .orTimeout(3, TimeUnit.SECONDS)
                 .whenComplete((result, ex) -> {
                     if (ex != null) {
                         throw new MapServiceException("Fetch historical data error", ex);
