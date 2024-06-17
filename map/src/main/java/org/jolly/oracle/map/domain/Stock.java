@@ -2,15 +2,16 @@ package org.jolly.oracle.map.domain;
 
 import jakarta.persistence.*;
 import lombok.Getter;
-import lombok.Setter;
 import org.hibernate.proxy.HibernateProxy;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Getter
 @Entity
 @Table(name = "stocks")
-public class Stock {
+@EntityListeners(AuditListener.class)
+public class Stock implements Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "stocks_seq")
@@ -71,5 +72,10 @@ public class Stock {
                 "id = " + id + ", " +
                 "ticker = " + ticker + ", " +
                 "name = " + name + ")";
+    }
+
+    @Override
+    public void setAudit(Audit audit) {
+        this.audit = audit;
     }
 }

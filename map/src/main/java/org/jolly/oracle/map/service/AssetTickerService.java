@@ -7,6 +7,7 @@ import org.apache.commons.csv.CSVRecord;
 import org.jolly.oracle.map.domain.Stock;
 import org.jolly.oracle.map.repository.StockRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.BufferedReader;
@@ -20,10 +21,12 @@ import java.util.Set;
 @Service
 @Slf4j
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class AssetTickerService {
     private final StockRepository stockRepository;
 
     // should be a daily cron job
+    @Transactional
     public void fetchStocks() throws IOException {
         // 1. check from db if updated today
 
@@ -44,7 +47,7 @@ public class AssetTickerService {
         }
 
         // 4. parse
-        Set<Stock> stocks = new HashSet<>();
+//        Set<Stock> stocks = new HashSet<>();
 
         try (InputStreamReader is = new InputStreamReader(url.openStream());
              BufferedReader br = new BufferedReader(is)) {
@@ -58,16 +61,25 @@ public class AssetTickerService {
                 log.error("parse csv error", e);
                 throw new IOException("Parse csv error", e);
             }
+            log.info("Updating");
             for (CSVRecord r : records) {
                 String ticker = r.get(0);
                 String name = r.get(1);
-                stocks.add(new Stock()
-                        .setTicker(ticker)
-                        .setName(name));
+//                stocks.add(new Stock()
+//                        .setTicker(ticker)
+//                        .setName(name));
+                stockRepository.findByTicker(ticker)
+                                .map(s -> s.setName(name))
+                                .orElseGet(() -> stockRepository.save(new Stock()
+                                        .setTicker(ticker)
+                                        .setName(name)));
+//                stockRepository.save(new Stock()
+//                        .setTicker(ticker)
+//                        .setName(name));
             }
         }
 
         // 5. save to db by batches
-        stocks.forEach(s -> stockRepository.upsert(s.getTicker(), s.getName()));
+//        stocks.forEach(s -> stockRepository.upsert(s.getTicker(), s.getName()));
     }
 }

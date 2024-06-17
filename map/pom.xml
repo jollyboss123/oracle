@@ -175,6 +175,12 @@
 			<artifactId>agent</artifactId>
 			<version>${pyroscope-agent.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>com.github.gavlyukovskiy</groupId>
+			<artifactId>datasource-proxy-spring-boot-starter</artifactId>
+			<version>1.9.1</version>
+<!--			<scope>test</scope>-->
+		</dependency>
 
 		<dependency>
 			<groupId>org.postgresql</groupId>
