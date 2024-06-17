@@ -43,9 +43,9 @@ public class AsyncConfiguration implements AsyncConfigurer {
     @Bean(name = "historicalDataTaskExecutor")
     public Executor historicalDataTaskExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(20);
-        executor.setMaxPoolSize(600);
-        executor.setQueueCapacity(800);
+        executor.setCorePoolSize(1);
+        executor.setMaxPoolSize(1);
+        executor.setQueueCapacity(10);
         executor.setThreadNamePrefix("Oracle-HistoricalDataAsync-");
         executor.initialize();
         return executor;

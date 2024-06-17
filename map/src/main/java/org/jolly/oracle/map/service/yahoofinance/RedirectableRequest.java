@@ -50,6 +50,7 @@ public class RedirectableRequest {
             connection.setInstanceFollowRedirects(true);
 
             //TODO: handle FileNotFoundException i.e. ticker does not exist
+            //TODO: handle IOException 429 rate limit
             int responseCode = connection.getResponseCode();
             if (responseCode == HttpURLConnection.HTTP_MOVED_PERM || responseCode == HttpURLConnection.HTTP_MOVED_TEMP) {
                 redirectCount++;

@@ -79,6 +79,7 @@ public class YahooFinanceExternalClient {
         }
 
         //TODO: handle FileNotFoundException i.e. ticker does not exist
+        //TODO: handle IOException 429
         return connection.getInputStream();
     }
 
