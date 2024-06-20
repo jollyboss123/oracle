@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -13,6 +14,13 @@ import java.util.stream.Collectors;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class AsyncUtils {
+
+    public static <T> CompletableFuture<List<T>> allOf(CompletableFuture<T>... cfs) {
+        return CompletableFuture.allOf(cfs)
+                .thenApply(v -> Arrays.stream(cfs)
+                        .map(CompletableFuture::join)
+                        .collect(Collectors.toList()));
+    }
 
     public static <T> CompletableFuture<List<T>> allOf(Collection<CompletableFuture<T>> cfs) {
         return CompletableFuture.allOf(cfs.toArray(new CompletableFuture[0]))
