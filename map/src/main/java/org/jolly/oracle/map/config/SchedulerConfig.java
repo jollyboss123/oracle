@@ -1,17 +1,13 @@
 package org.jolly.oracle.map.config;
 
 import lombok.RequiredArgsConstructor;
-import org.jolly.oracle.map.service.scheduled.AssetTickerService;
 import org.jolly.oracle.map.service.SchedulerErrorHandler;
 import org.jolly.oracle.map.service.scheduled.FetchStocksInfoTask;
 import org.jolly.oracle.map.service.scheduled.SchedulerManager;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
-import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.scheduling.annotation.SchedulingConfigurer;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.scheduling.config.ScheduledTaskRegistrar;
@@ -38,13 +34,16 @@ public class SchedulerConfig implements SchedulingConfigurer, DisposableBean {
 
     @Bean
     public SchedulerManager schedulerManager(SchedulerManagerCustomizer customizer, ThreadPoolTaskScheduler taskScheduler) {
-        return new SchedulerManager(taskScheduler, customizer);
-
+         SchedulerManager schedulerManager = new SchedulerManager(taskScheduler);
+         customizer.customize(schedulerManager);
+         return schedulerManager;
     }
 
     @Bean
     public SchedulerManagerCustomizer taskCustomizers(FetchStocksInfoTask fetchStocksInfoTask) {
-        return manager -> manager.scheduleTask(FetchStocksInfoTask.TASK_NAME, fetchStocksInfoTask, "*/10 * * * * *");
+        return manager -> {
+            manager.scheduleTask(FetchStocksInfoTask.TASK_NAME, fetchStocksInfoTask, "*/10 * * * * *");
+        };
     }
 
     @Override
