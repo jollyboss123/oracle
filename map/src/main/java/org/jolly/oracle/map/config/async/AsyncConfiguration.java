@@ -17,7 +17,6 @@ import java.util.concurrent.Executor;
 
 @Configuration
 @EnableAsync
-@EnableScheduling
 @RequiredArgsConstructor
 @Slf4j
 public class AsyncConfiguration implements AsyncConfigurer {
