@@ -19,11 +19,7 @@ public class AssetController {
 
     @GetMapping("/cron")
     ResponseEntity<Void> run() {
-        try {
-            assetTickerService.fetchStocks();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        assetTickerService.fetchStocks();
         return ResponseEntity.ok().build();
     }
 }

@@ -79,3 +79,11 @@ Content-Type: application/json
 ###
 GET {{base}}/oracle/cron
 
+###
+POST {{base}}/oracle/job/schedule
+Content-Type: application/json
+
+{
+  "jobName": "fetch-stocks-info",
+  "cronExpression": "*/10 * * * * ?"
+}
