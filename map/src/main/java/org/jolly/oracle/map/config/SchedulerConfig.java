@@ -8,7 +8,6 @@ import org.jolly.oracle.map.service.SchedulerErrorHandler;
 import org.jolly.oracle.map.service.scheduled.FetchStocksInfoTask;
 import org.jolly.oracle.map.service.scheduled.SchedulerManager;
 import org.redisson.spring.data.connection.RedissonConnectionFactory;
-import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,7 +26,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @EnableScheduling
 @EnableSchedulerLock(defaultLockAtMostFor = "PT30S")
-public class SchedulerConfig implements SchedulingConfigurer, DisposableBean {
+public class SchedulerConfig implements SchedulingConfigurer {
     private final SchedulerErrorHandler errorHandler;
 
     @Bean
@@ -59,11 +58,12 @@ public class SchedulerConfig implements SchedulingConfigurer, DisposableBean {
 
     @Bean
     public SchedulerManagerCustomizer fetchStocksInfoTaskCustomizer(FetchStocksInfoTask fetchStocksInfoTask) {
-        return manager -> manager.scheduleTask(FetchStocksInfoTask.TASK_NAME,
+        return manager -> manager.scheduleTask(
+                FetchStocksInfoTask.TASK_NAME,
                 fetchStocksInfoTask,
-                "*/10 * * * * *",
+                "0 0 * * * ?",
                 Duration.ofMinutes(5),
-                Duration.ofSeconds(20)
+                Duration.ofMinutes(2)
                 );
     }
 
@@ -71,10 +71,5 @@ public class SchedulerConfig implements SchedulingConfigurer, DisposableBean {
     public synchronized void configureTasks(ScheduledTaskRegistrar taskRegistrar) {
         taskRegistrar.setScheduler(taskScheduler());
         taskRegistrar.afterPropertiesSet();
-    }
-
-    @Override
-    public void destroy() {
-        taskScheduler().shutdown();
     }
 }

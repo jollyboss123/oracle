@@ -77,10 +77,10 @@ Content-Type: application/json
 }
 
 ###
-GET {{base}}/oracle/cron
+GET {{base}}/oracle/job
 
 ###
-POST {{base}}/oracle/cron/schedule
+POST {{base}}/oracle/job/schedule
 Content-Type: application/json
 
 {

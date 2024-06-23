@@ -1,7 +1,6 @@
 package org.jolly.oracle.map.config.cache;
 
 import org.jolly.oracle.map.config.ApplicationProperties;
-import org.jolly.oracle.map.service.scheduled.AssetTickerService;
 import org.jolly.oracle.map.web.rest.MapController;
 import org.redisson.Redisson;
 import org.redisson.config.ClusterServersConfig;
@@ -72,7 +71,6 @@ public class CacheConfiguration {
     public JCacheManagerCustomizer cacheManagerCustomizer(javax.cache.configuration.Configuration<Object, Object> jcacheConfiguration) {
         return cm -> {
             createCache(cm, MapController.PROCESSED_VAR_REQUEST_CACHE, jcacheConfiguration);
-            createCache(cm, AssetTickerService.SCHED_LOCK_CACHE, jcacheConfiguration);
         };
     }
 

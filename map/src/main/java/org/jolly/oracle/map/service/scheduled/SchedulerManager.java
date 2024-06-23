@@ -1,6 +1,8 @@
 package org.jolly.oracle.map.service.scheduled;
 
+import lombok.Builder;
 import lombok.RequiredArgsConstructor;
+import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import net.javacrumbs.shedlock.core.*;
 import net.javacrumbs.shedlock.spring.LockableTaskScheduler;
@@ -19,15 +21,28 @@ import java.util.concurrent.ScheduledFuture;
 @Slf4j
 @RequiredArgsConstructor
 public class SchedulerManager {
-    private final Map<String, ScheduledFuture<?>> scheduledFutures = new ConcurrentHashMap<>();
+    private final Map<String, ScheduledFutureHolder> scheduledFutures = new ConcurrentHashMap<>();
     private final TaskScheduler taskScheduler;
     private final LockProvider lockProvider;
 
+    @Value
+    @Builder
+    private static class ScheduledFutureHolder {
+        ScheduledFuture<?> scheduledFuture;
+        Runnable task;
+        Duration lockAtMostFor;
+        Duration lockAtLeastFor;
+    }
+
     public void scheduleTask(String taskName, Runnable task, String cronExpression, Duration lockAtMostFor, Duration lockAtLeastFor) {
-        ScheduledFuture<?> scheduledFuture = scheduledFutures.get(taskName);
-        if (scheduledFuture != null && !scheduledFuture.isDone() && !scheduledFuture.isCancelled()) {
-            scheduledFuture.cancel(false);
-            log.info("cancelled current scheduled task");
+        log.info("scheduling task: {}", taskName);
+        ScheduledFuture<?> scheduledFuture;
+        if (taskExists(taskName)) {
+            scheduledFuture = scheduledFutures.get(taskName).getScheduledFuture();
+            if (scheduledFuture != null && !scheduledFuture.isDone() && !scheduledFuture.isCancelled()) {
+                scheduledFuture.cancel(false);
+                log.info("cancelled current scheduled task: {}", taskName);
+            }
         }
 
         CronTrigger cronTrigger = new CronTrigger(cronExpression);
@@ -35,7 +50,27 @@ public class SchedulerManager {
                 lockProvider, taskName, lockAtMostFor, lockAtLeastFor);
         scheduledFuture = lockableTaskScheduler.schedule(task, cronTrigger);
 
-        scheduledFutures.put(taskName, scheduledFuture);
+        scheduledFutures.put(taskName, ScheduledFutureHolder.builder()
+                        .scheduledFuture(scheduledFuture)
+                        .task(task)
+                        .lockAtMostFor(lockAtMostFor)
+                        .lockAtLeastFor(lockAtLeastFor)
+                .build());
+        log.info("scheduled task: {} with cron: {}", taskName, cronExpression);
+    }
+
+    public void rescheduleTask(String taskName, String cronExpression) throws TaskNotFoundException {
+        if (!taskExists(taskName)) {
+            throw new TaskNotFoundException(taskName);
+        }
+        log.info("rescheduling task: {}", taskName);
+
+        ScheduledFutureHolder holder = scheduledFutures.get(taskName);
+        scheduleTask(taskName, holder.getTask(), cronExpression, holder.getLockAtMostFor(), holder.getLockAtLeastFor());
+    }
+
+    private boolean taskExists(String taskName) {
+        return scheduledFutures.containsKey(taskName);
     }
 
     private static LockableTaskScheduler lockableTaskScheduler(TaskScheduler taskScheduler,
