@@ -38,19 +38,18 @@ public class SchedulerManager {
 
     public void scheduleJob(String jobName, Runnable task, String cronExpression, Duration lockAtMostFor, Duration lockAtLeastFor) {
         log.info("scheduling job: {}", jobName);
-        ScheduledFuture<?> scheduledFuture;
         if (taskExists(jobName)) {
-            scheduledFuture = scheduledFutures.get(jobName).getScheduledFuture();
-            if (scheduledFuture != null && !scheduledFuture.isDone() && !scheduledFuture.isCancelled()) {
-                scheduledFuture.cancel(false);
-                log.info("cancelled current scheduled job: {}", jobName);
+            try {
+                cancelJob(jobName, false);
+            } catch (TaskNotFoundException ignored) {
+                // should not reach here
             }
         }
 
         CronTrigger cronTrigger = new CronTrigger(cronExpression);
         LockableTaskScheduler lockableTaskScheduler = lockableTaskScheduler(taskScheduler,
                 lockProvider, jobName, lockAtMostFor, lockAtLeastFor);
-        scheduledFuture = lockableTaskScheduler.schedule(task, cronTrigger);
+        ScheduledFuture<?> scheduledFuture = lockableTaskScheduler.schedule(task, cronTrigger);
 
         scheduledFutures.put(jobName,
                 ScheduledFutureHolder.builder()
@@ -70,6 +69,20 @@ public class SchedulerManager {
 
         ScheduledFutureHolder holder = scheduledFutures.get(jobName);
         scheduleJob(jobName, holder.getTask(), cronExpression, holder.getLockAtMostFor(), holder.getLockAtLeastFor());
+    }
+
+    public void cancelJob(String jobName, boolean mayInterruptIfRunning) throws TaskNotFoundException {
+        if (!taskExists(jobName)) {
+            throw new TaskNotFoundException(jobName);
+        }
+        log.info("cancelling job: {}", jobName);
+
+        ScheduledFuture<?> scheduledFuture = scheduledFutures.get(jobName).getScheduledFuture();
+        if (scheduledFuture != null && !scheduledFuture.isDone() && !scheduledFuture.isCancelled()) {
+            scheduledFuture.cancel(mayInterruptIfRunning);
+            scheduledFutures.remove(jobName);
+            log.info("cancelled job: {}", jobName);
+        }
     }
 
     private boolean taskExists(String taskName) {

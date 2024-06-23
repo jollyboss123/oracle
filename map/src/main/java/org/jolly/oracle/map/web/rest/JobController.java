@@ -38,7 +38,17 @@ public class JobController {
             schedulerManager.rescheduleJob(request.getJobName(), request.getCronExpression());
             return ResponseEntity.created(URI.create("/oracle/job/schedule/" + request.getJobName())).build();
         } catch (TaskNotFoundException e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @DeleteMapping("/cancel/{jobName}")
+    ResponseEntity<Void> cancel(@PathVariable("jobName") String jobName) {
+        try {
+            schedulerManager.cancelJob(jobName, true);
+            return ResponseEntity.ok().build();
+        } catch (TaskNotFoundException e) {
+            return ResponseEntity.notFound().build();
         }
     }
 
