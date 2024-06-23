@@ -1,4 +1,4 @@
-package org.jolly.oracle.map.service.scheduled;
+package org.jolly.oracle.map.service.scheduled.job;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

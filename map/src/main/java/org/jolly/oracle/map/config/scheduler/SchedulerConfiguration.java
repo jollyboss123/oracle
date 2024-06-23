@@ -4,9 +4,12 @@ import lombok.RequiredArgsConstructor;
 import net.javacrumbs.shedlock.core.LockProvider;
 import net.javacrumbs.shedlock.provider.redis.spring.RedisLockProvider;
 import net.javacrumbs.shedlock.spring.annotation.EnableSchedulerLock;
+import org.jolly.oracle.map.domain.JobDetail;
+import org.jolly.oracle.map.repository.JobDetailRepository;
+import org.jolly.oracle.map.repository.JobTriggerRepository;
 import org.jolly.oracle.map.service.SchedulerErrorHandler;
-import org.jolly.oracle.map.service.scheduled.FetchStocksInfoJob;
 import org.jolly.oracle.map.service.scheduled.SchedulerManager;
+import org.jolly.oracle.map.service.scheduled.job.FetchStocksInfoJob;
 import org.redisson.spring.data.connection.RedissonConnectionFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -50,20 +53,25 @@ public class SchedulerConfiguration implements SchedulingConfigurer {
     @Bean
     public SchedulerManager schedulerManager(List<SchedulerManagerCustomizer> customizers,
                                              ThreadPoolTaskScheduler taskScheduler,
-                                             LockProvider lockProvider) {
-         SchedulerManager schedulerManager = new SchedulerManager(taskScheduler, lockProvider);
+                                             LockProvider lockProvider,
+                                             JobDetailRepository jobDetailRepository,
+                                             JobTriggerRepository jobTriggerRepository) {
+         SchedulerManager schedulerManager = new SchedulerManager(taskScheduler, lockProvider, jobDetailRepository, jobTriggerRepository);
          customizers.forEach(customizer -> customizer.customize(schedulerManager));
          return schedulerManager;
     }
 
     @Bean
-    public SchedulerManagerCustomizer fetchStocksInfoJobCustomizer(FetchStocksInfoJob fetchStocksInfoJob) {
+    public SchedulerManagerCustomizer fetchStocksInfoJobCustomizer(FetchStocksInfoJob fetchStocksInfoJob,
+                                                                   JobDetailRepository jobDetailRepository) {
         return manager -> manager.scheduleJob(
                 FetchStocksInfoJob.JOB_NAME,
                 fetchStocksInfoJob,
-                "0 0 * * * ?",
+                jobDetailRepository.findByName(FetchStocksInfoJob.JOB_NAME)
+                        .map(JobDetail::getCronExpression)
+                        .orElse("0 0 * * * ?"),
                 Duration.ofMinutes(5),
-                Duration.ofMinutes(2)
+                Duration.ofSeconds(10)
                 );
     }
 

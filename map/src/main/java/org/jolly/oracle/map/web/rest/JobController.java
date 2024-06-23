@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
 import lombok.extern.slf4j.Slf4j;
-import org.jolly.oracle.map.service.scheduled.FetchStocksInfoJob;
+import org.jolly.oracle.map.service.scheduled.job.FetchStocksInfoJob;
 import org.jolly.oracle.map.service.scheduled.SchedulerManager;
 import org.jolly.oracle.map.service.scheduled.TaskNotFoundException;
 import org.springframework.context.annotation.Profile;
