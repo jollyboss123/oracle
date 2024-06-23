@@ -42,7 +42,7 @@ public class JobController {
         }
     }
 
-    @DeleteMapping("/cancel/{jobName}")
+    @DeleteMapping("/{jobName}")
     ResponseEntity<Void> cancel(@PathVariable("jobName") String jobName) {
         try {
             schedulerManager.cancelJob(jobName, true);

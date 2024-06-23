@@ -16,6 +16,7 @@ import java.time.Instant;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledFuture;
 
 @Profile("scheduling")
@@ -30,7 +31,7 @@ public class SchedulerManager {
     @Value
     @Builder
     private static class ScheduledFutureHolder {
-        ScheduledFuture<?> scheduledFuture;
+        Future<?> scheduledFuture;
         Runnable task;
         Duration lockAtMostFor;
         Duration lockAtLeastFor;
@@ -49,7 +50,12 @@ public class SchedulerManager {
         CronTrigger cronTrigger = new CronTrigger(cronExpression);
         LockableTaskScheduler lockableTaskScheduler = lockableTaskScheduler(taskScheduler,
                 lockProvider, jobName, lockAtMostFor, lockAtLeastFor);
-        ScheduledFuture<?> scheduledFuture = lockableTaskScheduler.schedule(task, cronTrigger);
+//        ScheduledFuture<?> scheduledFuture = lockableTaskScheduler.schedule(new ObservableJob(jobName, task, event -> {
+//            log.info(event.toString());
+//        }), cronTrigger);
+        CallbackFuture<?> scheduledFuture = new CallbackFuture<>(lockableTaskScheduler.schedule(new ObservableJob(jobName, task, event -> {
+            log.info(event.toString());
+        }), cronTrigger), () -> log.info("cancelled"));
 
         scheduledFutures.put(jobName,
                 ScheduledFutureHolder.builder()
@@ -77,7 +83,7 @@ public class SchedulerManager {
         }
         log.info("cancelling job: {}", jobName);
 
-        ScheduledFuture<?> scheduledFuture = scheduledFutures.get(jobName).getScheduledFuture();
+        Future<?> scheduledFuture = scheduledFutures.get(jobName).getScheduledFuture();
         if (scheduledFuture != null && !scheduledFuture.isDone() && !scheduledFuture.isCancelled()) {
             scheduledFuture.cancel(mayInterruptIfRunning);
             scheduledFutures.remove(jobName);

@@ -87,3 +87,6 @@ Content-Type: application/json
   "taskName": "fetch-stocks-info",
   "cronExpression": "*/15 * * * * *"
 }
+
+###
+DELETE {{base}}/oracle/job/fetch-stocks-info
