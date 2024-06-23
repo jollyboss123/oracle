@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.time.Duration;
 
 @RestController
 @RequestMapping("/oracle")
@@ -40,7 +41,7 @@ public class AssetController {
     @PostMapping(value = "/cron/schedule", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<?> schedule(@RequestBody ScheduleTaskRequest request) {
         if (FetchStocksInfoTask.TASK_NAME.equals(request.getTaskName())) {
-            schedulerManager.scheduleTask(request.getTaskName(), fetchStocksInfoTask, request.getCronExpression());
+            schedulerManager.scheduleTask(request.getTaskName(), fetchStocksInfoTask, request.getCronExpression(), Duration.ofMinutes(5), Duration.ofSeconds(20));
         }
         return ResponseEntity.ok().build();
     }
