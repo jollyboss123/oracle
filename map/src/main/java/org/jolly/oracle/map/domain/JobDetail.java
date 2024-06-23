@@ -25,6 +25,9 @@ public class JobDetail implements Auditable {
     @Column(name = "cron_expression")
     private String cronExpression;
 
+    @Column(name = "is_active")
+    private boolean isActive = true;
+
 //    @Column(name = "next_fire_time")
 //    private LocalDateTime nextFireTime;
 
@@ -40,6 +43,11 @@ public class JobDetail implements Auditable {
 
     public JobDetail setCronExpression(String cronExpression) {
         this.cronExpression = cronExpression;
+        return this;
+    }
+
+    public JobDetail setIsActive(boolean isActive) {
+        this.isActive = isActive;
         return this;
     }
 

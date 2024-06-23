@@ -15,6 +15,7 @@ CREATE TABLE job_details
     id              BIGINT NOT NULL,
     name            text unique check ( length(name) < 255 ) not null,
     cron_expression text check ( length(cron_expression) < 255 ) not null,
+    is_active       BOOLEAN,
     created_on      TIMESTAMP WITHOUT TIME ZONE,
     updated_on      TIMESTAMP WITHOUT TIME ZONE,
     CONSTRAINT pk_job_details PRIMARY KEY (id)

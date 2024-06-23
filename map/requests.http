@@ -84,7 +84,7 @@ POST {{base}}/oracle/job/schedule
 Content-Type: application/json
 
 {
-  "taskName": "fetch-stocks-info",
+  "jobName": "fetch-stocks-info",
   "cronExpression": "*/15 * * * * *"
 }
 

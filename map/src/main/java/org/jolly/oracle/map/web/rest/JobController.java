@@ -1,5 +1,7 @@
 package org.jolly.oracle.map.web.rest;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
@@ -28,7 +30,11 @@ public class JobController {
     @Builder
     @Jacksonized
     public static class ScheduleJobRequest {
+        @NotNull
+        @NotBlank
         String jobName;
+        @NotNull
+        @NotBlank
         String cronExpression;
     }
 

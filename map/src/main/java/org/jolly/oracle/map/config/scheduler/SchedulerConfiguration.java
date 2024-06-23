@@ -8,8 +8,10 @@ import org.jolly.oracle.map.domain.JobDetail;
 import org.jolly.oracle.map.repository.JobDetailRepository;
 import org.jolly.oracle.map.repository.JobTriggerRepository;
 import org.jolly.oracle.map.service.SchedulerErrorHandler;
+import org.jolly.oracle.map.service.TransactionHandler;
 import org.jolly.oracle.map.service.scheduled.SchedulerManager;
 import org.jolly.oracle.map.service.scheduled.job.FetchStocksInfoJob;
+import org.jolly.oracle.map.service.scheduled.job.HelloJob;
 import org.redisson.spring.data.connection.RedissonConnectionFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -55,8 +57,9 @@ public class SchedulerConfiguration implements SchedulingConfigurer {
                                              ThreadPoolTaskScheduler taskScheduler,
                                              LockProvider lockProvider,
                                              JobDetailRepository jobDetailRepository,
-                                             JobTriggerRepository jobTriggerRepository) {
-         SchedulerManager schedulerManager = new SchedulerManager(taskScheduler, lockProvider, jobDetailRepository, jobTriggerRepository);
+                                             JobTriggerRepository jobTriggerRepository,
+                                             TransactionHandler transactionHandler) {
+         SchedulerManager schedulerManager = new SchedulerManager(taskScheduler, lockProvider, jobDetailRepository, jobTriggerRepository, transactionHandler);
          customizers.forEach(customizer -> customizer.customize(schedulerManager));
          return schedulerManager;
     }
@@ -71,7 +74,7 @@ public class SchedulerConfiguration implements SchedulingConfigurer {
                         .map(JobDetail::getCronExpression)
                         .orElse("0 0 * * * ?"),
                 Duration.ofMinutes(5),
-                Duration.ofSeconds(10)
+                Duration.ofMinutes(2)
                 );
     }
 
