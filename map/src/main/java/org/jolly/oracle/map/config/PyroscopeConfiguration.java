@@ -14,10 +14,10 @@ import java.util.Map;
 @Component
 @ConditionalOnProperty(prefix = "app", name = "pyroscope.enabled", havingValue = "true")
 @Slf4j
-public class PyroscopeConfig {
+public class PyroscopeConfiguration {
 
-    public PyroscopeConfig(@Value("${app.pyroscope.server}") String pyroscopeServer,
-                           @Value("${spring.application.name}") String applicationName) {
+    public PyroscopeConfiguration(@Value("${app.pyroscope.server}") String pyroscopeServer,
+                                  @Value("${spring.application.name}") String applicationName) {
         log.info("Setting up pyroscope");
         PyroscopeAgent.start(
                 new Config.Builder()

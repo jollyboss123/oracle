@@ -1,11 +1,11 @@
-package org.jolly.oracle.map.config;
+package org.jolly.oracle.map.config.scheduler;
 
 import lombok.RequiredArgsConstructor;
 import net.javacrumbs.shedlock.core.LockProvider;
 import net.javacrumbs.shedlock.provider.redis.spring.RedisLockProvider;
 import net.javacrumbs.shedlock.spring.annotation.EnableSchedulerLock;
 import org.jolly.oracle.map.service.SchedulerErrorHandler;
-import org.jolly.oracle.map.service.scheduled.FetchStocksInfoTask;
+import org.jolly.oracle.map.service.scheduled.FetchStocksInfoJob;
 import org.jolly.oracle.map.service.scheduled.SchedulerManager;
 import org.redisson.spring.data.connection.RedissonConnectionFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,7 +26,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @EnableScheduling
 @EnableSchedulerLock(defaultLockAtMostFor = "PT30S")
-public class SchedulerConfig implements SchedulingConfigurer {
+public class SchedulerConfiguration implements SchedulingConfigurer {
     private final SchedulerErrorHandler errorHandler;
 
     @Bean
@@ -57,10 +57,10 @@ public class SchedulerConfig implements SchedulingConfigurer {
     }
 
     @Bean
-    public SchedulerManagerCustomizer fetchStocksInfoTaskCustomizer(FetchStocksInfoTask fetchStocksInfoTask) {
-        return manager -> manager.scheduleTask(
-                FetchStocksInfoTask.TASK_NAME,
-                fetchStocksInfoTask,
+    public SchedulerManagerCustomizer fetchStocksInfoJobCustomizer(FetchStocksInfoJob fetchStocksInfoJob) {
+        return manager -> manager.scheduleJob(
+                FetchStocksInfoJob.JOB_NAME,
+                fetchStocksInfoJob,
                 "0 0 * * * ?",
                 Duration.ofMinutes(5),
                 Duration.ofMinutes(2)

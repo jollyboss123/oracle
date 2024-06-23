@@ -1,4 +1,4 @@
-package org.jolly.oracle.map.config;
+package org.jolly.oracle.map.config.scheduler;
 
 import org.jolly.oracle.map.service.scheduled.SchedulerManager;
 

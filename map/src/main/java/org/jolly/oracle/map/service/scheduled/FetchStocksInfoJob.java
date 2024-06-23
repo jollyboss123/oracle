@@ -24,15 +24,15 @@ import java.util.stream.StreamSupport;
 @Component
 @Slf4j
 @RequiredArgsConstructor
-public class FetchStocksInfoTask implements Runnable {
+public class FetchStocksInfoJob implements Runnable {
     private final StockRepository stockRepository;
-    public static final String TASK_NAME = "fetch-stocks-info";
+    public static final String JOB_NAME = "fetch-stocks-info";
 
     private record StockRecord(String ticker, String name) {}
 
     @Override
     public void run() {
-        log.info("starting fetch stocks scheduled task");
+        log.info("starting fetch stocks scheduled job");
 
         URL url;
         try {
@@ -94,6 +94,6 @@ public class FetchStocksInfoTask implements Runnable {
             throw new FetchStocksInfoTaskException("open input stream error", e);
         }
 
-        log.info("fetch stocks scheduled task completed");
+        log.info("fetch stocks scheduled job completed");
     }
 }

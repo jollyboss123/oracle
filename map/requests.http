@@ -77,7 +77,7 @@ Content-Type: application/json
 }
 
 ###
-GET {{base}}/oracle/job
+GET {{base}}/oracle/job/stocks
 
 ###
 POST {{base}}/oracle/job/schedule

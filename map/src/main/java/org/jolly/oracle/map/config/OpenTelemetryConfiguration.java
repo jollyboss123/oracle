@@ -23,7 +23,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @RequiredArgsConstructor
 @ConditionalOnProperty(prefix = "app", name = "open-telemetry.enabled", havingValue = "true")
-public class OpenTelemetryConfig {
+public class OpenTelemetryConfiguration {
     @Value("${spring.application.name}")
     private final String applicatioName;
 

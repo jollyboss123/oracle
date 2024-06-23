@@ -6,6 +6,7 @@ import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import net.javacrumbs.shedlock.core.*;
 import net.javacrumbs.shedlock.spring.LockableTaskScheduler;
+import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.stereotype.Component;
@@ -17,6 +18,7 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledFuture;
 
+@Profile("scheduling")
 @Component
 @Slf4j
 @RequiredArgsConstructor
@@ -34,39 +36,40 @@ public class SchedulerManager {
         Duration lockAtLeastFor;
     }
 
-    public void scheduleTask(String taskName, Runnable task, String cronExpression, Duration lockAtMostFor, Duration lockAtLeastFor) {
-        log.info("scheduling task: {}", taskName);
+    public void scheduleJob(String jobName, Runnable task, String cronExpression, Duration lockAtMostFor, Duration lockAtLeastFor) {
+        log.info("scheduling job: {}", jobName);
         ScheduledFuture<?> scheduledFuture;
-        if (taskExists(taskName)) {
-            scheduledFuture = scheduledFutures.get(taskName).getScheduledFuture();
+        if (taskExists(jobName)) {
+            scheduledFuture = scheduledFutures.get(jobName).getScheduledFuture();
             if (scheduledFuture != null && !scheduledFuture.isDone() && !scheduledFuture.isCancelled()) {
                 scheduledFuture.cancel(false);
-                log.info("cancelled current scheduled task: {}", taskName);
+                log.info("cancelled current scheduled job: {}", jobName);
             }
         }
 
         CronTrigger cronTrigger = new CronTrigger(cronExpression);
         LockableTaskScheduler lockableTaskScheduler = lockableTaskScheduler(taskScheduler,
-                lockProvider, taskName, lockAtMostFor, lockAtLeastFor);
+                lockProvider, jobName, lockAtMostFor, lockAtLeastFor);
         scheduledFuture = lockableTaskScheduler.schedule(task, cronTrigger);
 
-        scheduledFutures.put(taskName, ScheduledFutureHolder.builder()
+        scheduledFutures.put(jobName,
+                ScheduledFutureHolder.builder()
                         .scheduledFuture(scheduledFuture)
                         .task(task)
                         .lockAtMostFor(lockAtMostFor)
                         .lockAtLeastFor(lockAtLeastFor)
                 .build());
-        log.info("scheduled task: {} with cron: {}", taskName, cronExpression);
+        log.info("scheduled job: {} with cron: {}", jobName, cronExpression);
     }
 
-    public void rescheduleTask(String taskName, String cronExpression) throws TaskNotFoundException {
-        if (!taskExists(taskName)) {
-            throw new TaskNotFoundException(taskName);
+    public void rescheduleJob(String jobName, String cronExpression) throws TaskNotFoundException {
+        if (!taskExists(jobName)) {
+            throw new TaskNotFoundException(jobName);
         }
-        log.info("rescheduling task: {}", taskName);
+        log.info("rescheduling job: {}", jobName);
 
-        ScheduledFutureHolder holder = scheduledFutures.get(taskName);
-        scheduleTask(taskName, holder.getTask(), cronExpression, holder.getLockAtMostFor(), holder.getLockAtLeastFor());
+        ScheduledFutureHolder holder = scheduledFutures.get(jobName);
+        scheduleJob(jobName, holder.getTask(), cronExpression, holder.getLockAtMostFor(), holder.getLockAtLeastFor());
     }
 
     private boolean taskExists(String taskName) {
@@ -75,13 +78,13 @@ public class SchedulerManager {
 
     private static LockableTaskScheduler lockableTaskScheduler(TaskScheduler taskScheduler,
                                                                 LockProvider lockProvider,
-                                                                String taskName,
+                                                                String jobName,
                                                                 Duration lockAtMostFor,
                                                                 Duration lockAtLeastFor) {
         LockingTaskExecutor taskExecutor = new DefaultLockingTaskExecutor(lockProvider);
         LockConfigurationExtractor configurationExtractor = __ -> Optional.of(new LockConfiguration(
                 Instant.now(),
-                taskName + "-" + "scheduler-lock",
+                jobName + "-" + "scheduler-lock",
                 lockAtMostFor,
                 lockAtLeastFor
         ));
