@@ -23,7 +23,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
 
-//TODO: make job async
 @Profile("scheduling")
 @Component
 @Slf4j
@@ -66,11 +65,11 @@ public class SchedulerManager {
                 lockProvider, jobName, lockAtMostFor, lockAtLeastFor);
         CancellableFuture<?> scheduledFuture = new CancellableFuture<>(
                 lockableTaskScheduler.schedule(
-                        new ObservableJob(task, event -> CompletableFuture.runAsync(() -> {
-                            log.info("job-{} :: {}", jobName, event);
+                        new ObservableJob(task, status -> CompletableFuture.runAsync(() -> {
+                            log.info("job-{} :: {}", jobName, status);
                             jobTriggerService.save(new JobTrigger()
                                     .setName(jobName)
-                                    .setStatus(event)
+                                    .setStatus(status)
                                     .setDetail(jobDetail));
                         })
                         .exceptionallyAsync(cause -> {

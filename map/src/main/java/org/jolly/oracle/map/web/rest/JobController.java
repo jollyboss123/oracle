@@ -7,6 +7,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
 import lombok.extern.slf4j.Slf4j;
+import org.jolly.oracle.map.service.scheduled.JobDetailService;
+import org.jolly.oracle.map.service.scheduled.JobStatus;
 import org.jolly.oracle.map.service.scheduled.job.FetchStocksInfoJob;
 import org.jolly.oracle.map.service.scheduled.SchedulerManager;
 import org.jolly.oracle.map.service.scheduled.TaskNotFoundException;
@@ -16,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.time.LocalDateTime;
 
 @Profile("scheduling")
 @RestController
@@ -25,6 +28,7 @@ import java.net.URI;
 public class JobController {
     private final SchedulerManager schedulerManager;
     private final FetchStocksInfoJob fetchStocksInfoJob;
+    private final JobDetailService jobDetailService;
 
     @Value
     @Builder
@@ -56,6 +60,23 @@ public class JobController {
         } catch (TaskNotFoundException e) {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @Value
+    @Builder
+    @Jacksonized
+    public static class JobDetailResponse {
+        String name;
+        String cronExpression;
+        JobStatus latestStatus;
+        LocalDateTime prevFireTime;
+    }
+
+    @GetMapping("/{jobName}")
+    ResponseEntity<JobDetailResponse> getDetails(@PathVariable("jobName") String jobName) {
+        return jobDetailService.getDetails(jobName)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/stocks")

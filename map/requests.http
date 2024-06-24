@@ -90,3 +90,6 @@ Content-Type: application/json
 
 ###
 DELETE {{base}}/oracle/job/fetch-stocks-info
+
+###
+GET {{base}}/oracle/job/fetch-stocks-info
