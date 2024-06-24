@@ -6,9 +6,9 @@ import net.javacrumbs.shedlock.provider.redis.spring.RedisLockProvider;
 import net.javacrumbs.shedlock.spring.annotation.EnableSchedulerLock;
 import org.jolly.oracle.map.domain.JobDetail;
 import org.jolly.oracle.map.repository.JobDetailRepository;
-import org.jolly.oracle.map.repository.JobTriggerRepository;
 import org.jolly.oracle.map.service.SchedulerErrorHandler;
-import org.jolly.oracle.map.service.TransactionHandler;
+import org.jolly.oracle.map.service.scheduled.JobDetailService;
+import org.jolly.oracle.map.service.scheduled.JobTriggerService;
 import org.jolly.oracle.map.service.scheduled.SchedulerManager;
 import org.jolly.oracle.map.service.scheduled.job.FetchStocksInfoJob;
 import org.jolly.oracle.map.service.scheduled.job.HelloJob;
@@ -56,10 +56,9 @@ public class SchedulerConfiguration implements SchedulingConfigurer {
     public SchedulerManager schedulerManager(List<SchedulerManagerCustomizer> customizers,
                                              ThreadPoolTaskScheduler taskScheduler,
                                              LockProvider lockProvider,
-                                             JobDetailRepository jobDetailRepository,
-                                             JobTriggerRepository jobTriggerRepository,
-                                             TransactionHandler transactionHandler) {
-         SchedulerManager schedulerManager = new SchedulerManager(taskScheduler, lockProvider, jobDetailRepository, jobTriggerRepository, transactionHandler);
+                                             JobDetailService jobDetailService,
+                                             JobTriggerService jobTriggerService) {
+         SchedulerManager schedulerManager = new SchedulerManager(taskScheduler, lockProvider, jobDetailService, jobTriggerService);
          customizers.forEach(customizer -> customizer.customize(schedulerManager));
          return schedulerManager;
     }

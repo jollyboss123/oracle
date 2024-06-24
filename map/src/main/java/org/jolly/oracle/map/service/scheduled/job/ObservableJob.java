@@ -2,13 +2,14 @@ package org.jolly.oracle.map.service.scheduled.job;
 
 import lombok.extern.slf4j.Slf4j;
 import org.jolly.oracle.map.service.scheduled.JobStatus;
-import org.jolly.oracle.map.service.scheduled.JobStatusEvent;
+import org.springframework.scheduling.annotation.Async;
 
 import java.util.Objects;
 import java.util.function.Consumer;
 
+@Async
 @Slf4j
-public final class ObservableJob implements Runnable {
+public class ObservableJob implements Runnable {
     private final Runnable task;
     private final Consumer<JobStatus> statusEmitter;
 

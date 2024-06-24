@@ -8,9 +8,6 @@ import net.javacrumbs.shedlock.core.*;
 import net.javacrumbs.shedlock.spring.LockableTaskScheduler;
 import org.jolly.oracle.map.domain.JobDetail;
 import org.jolly.oracle.map.domain.JobTrigger;
-import org.jolly.oracle.map.repository.JobDetailRepository;
-import org.jolly.oracle.map.repository.JobTriggerRepository;
-import org.jolly.oracle.map.service.TransactionHandler;
 import org.jolly.oracle.map.service.scheduled.job.ObservableJob;
 import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.TaskScheduler;
@@ -27,7 +24,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
 
 //TODO: make job async
-//TODO: move db transaction to job service class
 @Profile("scheduling")
 @Component
 @Slf4j
@@ -37,9 +33,8 @@ public class SchedulerManager {
     private final Map<String, ScheduledFutureHolder> scheduledFutures = new ConcurrentHashMap<>();
     private final TaskScheduler taskScheduler;
     private final LockProvider lockProvider;
-    private final JobDetailRepository jobDetailRepository;
-    private final JobTriggerRepository jobTriggerRepository;
-    private final TransactionHandler transactionHandler;
+    private final JobDetailService jobDetailService;
+    private final JobTriggerService jobTriggerService;
 
     @Value
     @Builder
@@ -61,14 +56,11 @@ public class SchedulerManager {
         }
 
         CronTrigger cronTrigger = new CronTrigger(cronExpression);
-        JobDetail jobDetail = transactionHandler.runInTransaction(() -> {
-            JobDetail jd = jobDetailRepository.findByName(jobName)
-                    .orElseGet(() -> new JobDetail()
-                            .setName(jobName));
-            jd.setCronExpression(cronExpression);
-            jd.setIsActive(true);
-            return jd;
-        });
+        JobDetail jobDetail = jobDetailService.findByName(jobName)
+                .orElseGet(() -> new JobDetail()
+                        .setName(jobName))
+                .setIsActive(true)
+                .setCronExpression(cronExpression);
 
         LockableTaskScheduler lockableTaskScheduler = lockableTaskScheduler(taskScheduler,
                 lockProvider, jobName, lockAtMostFor, lockAtLeastFor);
@@ -76,18 +68,26 @@ public class SchedulerManager {
                 lockableTaskScheduler.schedule(
                         new ObservableJob(task, event -> CompletableFuture.runAsync(() -> {
                             log.info("job-{} :: {}", jobName, event);
-                            jobTriggerRepository.save(new JobTrigger()
+                            jobTriggerService.save(new JobTrigger()
                                     .setName(jobName)
                                     .setStatus(event)
                                     .setDetail(jobDetail));
+                        })
+                        .exceptionallyAsync(cause -> {
+                            log.error("error persisting job: {}", jobName, cause);
+                            return null;
                         })),
                         cronTrigger),
                 () -> CompletableFuture.runAsync(() -> {
                     log.info("job-{} :: {}", jobName, JobStatus.CANCELLED);
-                    jobTriggerRepository.save(new JobTrigger()
+                    jobTriggerService.save(new JobTrigger()
                             .setName(jobName)
                             .setStatus(JobStatus.CANCELLED)
                             .setDetail(jobDetail));
+                })
+                .exceptionallyAsync(cause -> {
+                    log.error("error persisting cancelled job: {}", jobName, cause);
+                    return null;
                 })
         );
 
@@ -98,7 +98,7 @@ public class SchedulerManager {
                         .lockAtMostFor(lockAtMostFor)
                         .lockAtLeastFor(lockAtLeastFor)
                 .build());
-        jobDetailRepository.save(jobDetail);
+        jobDetailService.save(jobDetail);
         log.info("scheduled job: {} with cron: {}", jobName, cronExpression);
     }
 
@@ -118,7 +118,7 @@ public class SchedulerManager {
         Future<?> scheduledFuture = scheduledFutures.get(jobName).getScheduledFuture();
         if (scheduledFuture != null && !scheduledFuture.isDone() && !scheduledFuture.isCancelled()) {
             scheduledFuture.cancel(mayInterruptIfRunning);
-            JobDetail jobDetail = jobDetailRepository.findByName(jobName)
+            JobDetail jobDetail = jobDetailService.findByName(jobName)
                             .orElseThrow(() -> new IllegalStateException("Job: " + jobName + " should exist"));
             jobDetail.setIsActive(false);
             log.info("cancelled job: {}", jobName);
