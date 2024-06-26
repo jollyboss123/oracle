@@ -5,19 +5,19 @@ import lombok.NoArgsConstructor;
 import java.io.Serial;
 
 @NoArgsConstructor
-public class FetchStocksInfoTaskException extends RuntimeException {
+public class FetchStocksInfoJobException extends RuntimeException {
     @Serial
     private static final long serialVersionUID = -4350937479836158211L;
 
-    public FetchStocksInfoTaskException(String message) {
+    public FetchStocksInfoJobException(String message) {
         super(message);
     }
 
-    public FetchStocksInfoTaskException(String message, Throwable cause) {
+    public FetchStocksInfoJobException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public FetchStocksInfoTaskException(Throwable cause) {
+    public FetchStocksInfoJobException(Throwable cause) {
         super(cause);
     }
 }

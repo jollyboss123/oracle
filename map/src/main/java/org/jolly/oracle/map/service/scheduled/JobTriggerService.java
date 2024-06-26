@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.jolly.oracle.map.domain.JobTrigger;
 import org.jolly.oracle.map.repository.JobTriggerRepository;
-import org.springframework.data.domain.Limit;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,14 +25,6 @@ public class JobTriggerService {
         }
 
         return Optional.of(jobTriggerRepository.save(jobTrigger));
-    }
-
-    public Optional<JobStatus> findLatestStatusByName(@Nullable String jobName) {
-        if (StringUtils.isBlank(jobName)) {
-            throw new IllegalArgumentException("jobName");
-        }
-
-        return jobTriggerRepository.findLatestStatusByName(jobName);
     }
 
     public Optional<JobTrigger> findLatestByNameAndStatus(@Nullable String jobName, @Nullable JobStatus status) {

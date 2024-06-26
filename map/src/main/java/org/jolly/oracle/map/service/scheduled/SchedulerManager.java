@@ -49,7 +49,7 @@ public class SchedulerManager {
         if (taskExists(jobName)) {
             try {
                 cancelJob(jobName, false);
-            } catch (TaskNotFoundException ignored) {
+            } catch (JobNotFoundException ignored) {
                 // should not reach here
             }
         }
@@ -101,16 +101,16 @@ public class SchedulerManager {
         log.info("scheduled job: {} with cron: {}", jobName, cronExpression);
     }
 
-    public void rescheduleJob(String jobName, String cronExpression) throws TaskNotFoundException {
+    public void rescheduleJob(String jobName, String cronExpression) throws JobNotFoundException {
         log.info("rescheduling job: {}", jobName);
 
         ScheduledFutureHolder holder = scheduledFutures.get(jobName);
         scheduleJob(jobName, holder.getTask(), cronExpression, holder.getLockAtMostFor(), holder.getLockAtLeastFor());
     }
 
-    public void cancelJob(String jobName, boolean mayInterruptIfRunning) throws TaskNotFoundException {
+    public void cancelJob(String jobName, boolean mayInterruptIfRunning) throws JobNotFoundException {
         if (!taskExists(jobName)) {
-            throw new TaskNotFoundException(jobName);
+            throw new JobNotFoundException(jobName);
         }
         log.info("cancelling job: {}", jobName);
 

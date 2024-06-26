@@ -76,8 +76,30 @@ Content-Type: application/json
   ]
 }
 
+### invalid tickers
+PUT {{base}}/oracle/var
+Content-Type: application/json
+
+{
+  "portfolioValue": 15000.00,
+  "assets": [
+    {
+      "ticker": "AAPL",
+      "value": 6000.00
+    },
+    {
+      "ticker": "MSFT",
+      "value": 2000.00
+    },
+    {
+      "ticker": "AAAA",
+      "value": 7000.00
+    }
+  ]
+}
+
 ###
-GET {{base}}/oracle/job/stocks
+GET {{base}}/oracle/job/run/stocks
 
 ###
 POST {{base}}/oracle/job/schedule

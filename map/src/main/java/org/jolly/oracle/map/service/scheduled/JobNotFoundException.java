@@ -5,19 +5,19 @@ import lombok.NoArgsConstructor;
 import java.io.Serial;
 
 @NoArgsConstructor
-public class TaskNotFoundException extends Exception {
+public class JobNotFoundException extends Exception {
     @Serial
     private static final long serialVersionUID = 4787397585133922503L;
 
-    public TaskNotFoundException(String message) {
+    public JobNotFoundException(String message) {
         super(message);
     }
 
-    public TaskNotFoundException(String message, Throwable cause) {
+    public JobNotFoundException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public TaskNotFoundException(Throwable cause) {
+    public JobNotFoundException(Throwable cause) {
         super(cause);
     }
 }

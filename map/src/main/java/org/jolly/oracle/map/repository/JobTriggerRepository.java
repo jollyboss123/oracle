@@ -10,15 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 
 public interface JobTriggerRepository extends JpaRepository<JobTrigger, Long> {
-    @Transactional(readOnly = true)
-    @Query("""
-        select jt.status
-        from JobTrigger jt
-        where jt.name = :name
-        order by jt.audit.createdOn desc
-        limit 1
-        """)
-    Optional<JobStatus> findLatestStatusByName(@Param("name") String name);
 
     @Transactional(readOnly = true)
     @Query("""

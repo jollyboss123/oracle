@@ -6,7 +6,7 @@ import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
-import org.jolly.oracle.map.web.rest.VarRequest;
+import org.jolly.oracle.map.web.rest.dto.VarRequest;
 import org.springframework.lang.NonNull;
 
 import java.math.BigDecimal;

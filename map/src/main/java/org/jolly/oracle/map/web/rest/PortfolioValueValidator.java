@@ -2,6 +2,7 @@ package org.jolly.oracle.map.web.rest;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
+import org.jolly.oracle.map.web.rest.dto.VarRequest;
 
 import java.math.BigDecimal;
 

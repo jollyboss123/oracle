@@ -5,7 +5,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.jolly.oracle.map.domain.JobDetail;
 import org.jolly.oracle.map.domain.JobTrigger;
 import org.jolly.oracle.map.repository.JobDetailRepository;
-import org.jolly.oracle.map.web.rest.JobController;
+import org.jolly.oracle.map.web.rest.dto.JobDetailResponse;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,23 +36,20 @@ public class JobDetailService {
         return Optional.of(jobDetailRepository.save(jobDetail));
     }
 
-    public Optional<JobController.JobDetailResponse> getDetails(@Nullable String name) {
+    public Optional<JobDetailResponse> getDetails(@Nullable String name) {
         if (StringUtils.isBlank(name)) {
             throw new IllegalArgumentException("job name");
         }
 
         return findByName(name)
                 .map(jobDetail -> {
-                    JobStatus latestStatus = jobTriggerService.findLatestStatusByName(jobDetail.getName())
-                            .orElse(null);
                     JobTrigger latestTrigger = jobTriggerService.findLatestByNameAndStatus(jobDetail.getName(),
                             JobStatus.RUNNING)
                             .orElse(null);
 
-                    return JobController.JobDetailResponse.builder()
+                    return JobDetailResponse.builder()
                             .name(jobDetail.getName())
                             .cronExpression(jobDetail.getCronExpression())
-                            .latestStatus(latestStatus)
                             .prevFireTime(latestTrigger != null ? latestTrigger.getAudit().getCreatedOn() : null)
                             .build();
                 });

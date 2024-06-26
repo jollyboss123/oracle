@@ -7,7 +7,7 @@ import org.springframework.scheduling.annotation.Async;
 import java.util.Objects;
 import java.util.function.Consumer;
 
-@Async
+@Async("cronTaskExecutor")
 @Slf4j
 public class ObservableJob implements Runnable {
     private final Runnable task;

@@ -49,4 +49,15 @@ public class AsyncConfiguration implements AsyncConfigurer {
         executor.initialize();
         return executor;
     }
+
+    @Bean(name = "cronTaskExecutor")
+    public Executor cronTaskExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(5);
+        executor.setMaxPoolSize(10);
+        executor.setQueueCapacity(20);
+        executor.setThreadNamePrefix("Oracle-CronAsync-");
+        executor.initialize();
+        return executor;
+    }
 }

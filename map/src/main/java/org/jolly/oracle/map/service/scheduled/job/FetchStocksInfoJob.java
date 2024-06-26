@@ -44,7 +44,7 @@ public class FetchStocksInfoJob implements Runnable {
                     .toUri().toURL();
         } catch (MalformedURLException e) {
             log.error("malformed fund uri", e);
-            throw new FetchStocksInfoTaskException("Malformed fund uri", e);
+            throw new FetchStocksInfoJobException("Malformed fund uri", e);
         }
 
         // 3. parse
@@ -58,7 +58,7 @@ public class FetchStocksInfoJob implements Runnable {
                         .parse(br);
             } catch (IOException e) {
                 log.error("parse csv error", e);
-                throw new FetchStocksInfoTaskException("Parse csv error", e);
+                throw new FetchStocksInfoJobException("Parse csv error", e);
             }
 
             List<StockRecord> stocks = StreamSupport.stream(records.spliterator(), true)
@@ -91,7 +91,7 @@ public class FetchStocksInfoJob implements Runnable {
             log.info("saved/updated {} records", updated.size());
         } catch (IOException e) {
             log.error("open input stream error", e);
-            throw new FetchStocksInfoTaskException("open input stream error", e);
+            throw new FetchStocksInfoJobException("open input stream error", e);
         }
 
         log.info("fetch stocks scheduled job completed");

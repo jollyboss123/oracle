@@ -1,4 +1,4 @@
-package org.jolly.oracle.map.web.rest;
+package org.jolly.oracle.map.web.rest.dto;
 
 import jakarta.validation.constraints.*;
 import lombok.Builder;
@@ -6,9 +6,9 @@ import lombok.Singular;
 import lombok.Value;
 import lombok.With;
 import lombok.extern.jackson.Jacksonized;
+import org.jolly.oracle.map.web.rest.ValidPortfolioValue;
 
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.Set;
 
 @With
