@@ -6,7 +6,8 @@ import lombok.Singular;
 import lombok.Value;
 import lombok.With;
 import lombok.extern.jackson.Jacksonized;
-import org.jolly.oracle.map.web.rest.ValidPortfolioValue;
+import org.jolly.oracle.map.web.rest.validators.ValidPortfolioValue;
+import org.jolly.oracle.map.web.rest.validators.ValidTickers;
 
 import java.math.BigDecimal;
 import java.util.Set;
@@ -16,6 +17,7 @@ import java.util.Set;
 @Builder
 @Jacksonized
 @ValidPortfolioValue
+@ValidTickers
 public class VarRequest {
     @Singular
     Set<Asset> assets;

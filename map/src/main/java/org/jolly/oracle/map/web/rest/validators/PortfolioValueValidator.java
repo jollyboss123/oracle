@@ -1,4 +1,4 @@
-package org.jolly.oracle.map.web.rest;
+package org.jolly.oracle.map.web.rest.validators;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;

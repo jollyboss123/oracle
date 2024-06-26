@@ -30,7 +30,6 @@ public class MapService {
     private final StreamBridge streamBridge;
     @Qualifier("historicalDataTaskExecutor")
     private final Executor executor;
-    private final ValidationService validationService;
 
     /**
      * Fetches historical data for the provided assets from two different external clients.
@@ -40,10 +39,6 @@ public class MapService {
      * @return a {@code CompletableFuture<Void>}
      */
     public CompletableFuture<Void> execute(VarRequest request) {
-        //TODO: add validation for whether valid stock/crypto before processing
-        if (!validationService.validateTickers(new ArrayList<>(request.getAssets()))) {
-            throw new IllegalArgumentException("stocks does not exist");
-        }
         //TODO: can check db for existing records so don't have to set from 1 year
         //TODO: note polygon can only process 5 request per minute, would require some weightage handling or rate limit
         CompletableFuture<List<IQuoteResponse>> polygonResponsesFuture = AsyncUtils.inParallel(

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -20,9 +21,9 @@ import java.util.stream.IntStream;
 public class ValidationService {
     private final NamedParameterJdbcTemplate jdbcTemplate;
 
-    public boolean validateTickers(List<VarRequest.Asset> assets) {
+    public List<String> validateTickers(List<VarRequest.Asset> assets) {
         if (CollectionUtils.isEmpty(assets)) {
-            return true;
+            return Collections.emptyList();
         }
 
         String values = IntStream.range(0, assets.size())
@@ -51,6 +52,6 @@ public class ValidationService {
         if (!invalidTickers.isEmpty()) {
             log.info("invalid tickers: {}", invalidTickers);
         }
-        return invalidTickers.isEmpty();
+        return invalidTickers;
     }
 }
