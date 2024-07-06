@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,6 +21,18 @@ import java.util.stream.IntStream;
 @Transactional(readOnly = true)
 public class ValidationService {
     private final NamedParameterJdbcTemplate jdbcTemplate;
+
+    public boolean validatePortfolioValue(VarRequest request) {
+        if (request.getPortfolioValue() == null) {
+            return true;
+        }
+
+        BigDecimal totalAssetsValue = request.getAssets().stream()
+                .map(VarRequest.Asset::getValue)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        return totalAssetsValue.equals(request.getPortfolioValue());
+    }
 
     public List<String> validateTickers(List<VarRequest.Asset> assets) {
         if (CollectionUtils.isEmpty(assets)) {

@@ -9,13 +9,16 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.*;
+import java.util.stream.IntStream;
 
 @Service
 @Slf4j
 public class ReduceService {
     private final Random random = new Random();
     private static final int SIMULATIONS = 10_000;
+    //TODO: make this into a variable
     private static final BigDecimal DAYS = BigDecimal.valueOf(20);
+    //TODO: make this into a variable
     private static final BigDecimal CONFIDENCE_INTERVAL = new BigDecimal("0.99");
     private static final MathContext MATH_CONTEXT = new MathContext(10);
 
@@ -76,6 +79,24 @@ public class ReduceService {
         }
 
         return scenarioReturn.get(idx).negate();
+    }
+
+    protected static BigDecimal conditionalValueAtRisk(List<BigDecimal> scenarioReturn, BigDecimal confidenceInterval) {
+        Collections.sort(scenarioReturn);
+        BigDecimal oneMinusConfidence = BigDecimal.ONE.subtract(confidenceInterval.divide(BigDecimal.valueOf(100), 6, RoundingMode.HALF_UP));
+        int idx = oneMinusConfidence.multiply(BigDecimal.valueOf(scenarioReturn.size())).setScale(0, RoundingMode.CEILING).intValue();
+
+        // ensure the index is within bounds
+        if (idx < 0) {
+            idx = 0;
+        }
+        if (idx >= scenarioReturn.size()) {
+            idx = scenarioReturn.size() - 1;
+        }
+
+        return ReduceService.mean(IntStream.range(0, idx)
+                .mapToObj(scenarioReturn::get)
+                .toList()).negate();
     }
 
     /**

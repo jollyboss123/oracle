@@ -13,7 +13,6 @@ import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
@@ -41,6 +40,7 @@ public class MapService {
     public CompletableFuture<Void> execute(VarRequest request) {
         //TODO: can check db for existing records so don't have to set from 1 year
         //TODO: note polygon can only process 5 request per minute, would require some weightage handling or rate limit
+        //TODO: note yfinance also has rate limit, would require rate limit on our side as well
         CompletableFuture<List<IQuoteResponse>> polygonResponsesFuture = AsyncUtils.inParallel(
                 request.getAssets(),
                 asset -> {

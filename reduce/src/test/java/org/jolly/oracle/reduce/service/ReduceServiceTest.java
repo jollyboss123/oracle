@@ -162,6 +162,33 @@ class ReduceServiceTest {
         assertEquals(expected, actual, () -> "expected: %s, gotten: %s".formatted(expected, actual));
     }
 
+    @Test
+    void conditionalValueAtRisk() {
+        List<BigDecimal> scenarioReturn = Arrays.asList(
+                new BigDecimal("-0.15"),
+                new BigDecimal("-0.10"),
+                new BigDecimal("-0.05"),
+                new BigDecimal("0.00"),
+                new BigDecimal("0.05"),
+                new BigDecimal("0.10"),
+                new BigDecimal("0.15")
+        );
+
+        BigDecimal confidenceInterval = new BigDecimal("95"); // 95%
+
+        // Calculate CVaR using the method
+        BigDecimal calculatedCVar = ReduceService.conditionalValueAtRisk(scenarioReturn, confidenceInterval);
+
+        // Expected CVaR: average of returns less than the VaR (95% VaR is at the 5th percentile, i.e., index 1)
+        List<BigDecimal> expectedValues = Arrays.asList(
+                new BigDecimal("0.15")
+        );
+        BigDecimal expectedCVar = ReduceService.mean(expectedValues);
+
+        // Assert that the calculated CVaR matches the expected CVaR
+        assertEquals(expectedCVar, calculatedCVar);
+    }
+
     private static QuotesMessage setupMockQuotesMessage() {
         return QuotesMessage.builder()
                 .jobId(new byte[]{1, 2, 3})

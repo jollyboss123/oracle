@@ -24,6 +24,11 @@ public class VarRequest {
     byte[] jobId;
     @Positive
     BigDecimal portfolioValue;
+    @Positive
+    int holdingPeriod; // in days
+    @Positive
+    @Max(100)
+    int confidenceLevel; // as a percentage
 
     @Value
     @Builder

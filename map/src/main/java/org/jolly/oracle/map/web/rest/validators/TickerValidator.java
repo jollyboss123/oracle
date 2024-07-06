@@ -19,6 +19,7 @@ public class TickerValidator implements ConstraintValidator<ValidTickers, VarReq
 
     @Override
     public boolean isValid(VarRequest request, ConstraintValidatorContext context) {
+        //TODO: maybe bloom filter here
         List<String> invalidTickers = validationService.validateTickers(new ArrayList<>(request.getAssets()));
         if (!invalidTickers.isEmpty()) {
             context.disableDefaultConstraintViolation();
